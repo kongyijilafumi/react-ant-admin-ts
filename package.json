@@ -152,5 +152,21 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "@loadable/component": "^5.15.0",
+    "@types/loadable__component": "^5.13.3",
+    "@types/react-beautiful-dnd": "^13.0.0",
+    "@types/react-color": "^3.0.4",
+    "@types/react-router-dom": "^5.1.7",
+    "antd": "^4.16.3",
+    "axios": "^0.21.1",
+    "dayjs": "^1.10.5",
+    "react-beautiful-dnd": "^13.1.0",
+    "react-color": "^2.19.3",
+    "react-redux": "^7.2.4",
+    "react-router-cache-route": "^1.11.1",
+    "react-router-dom": "^5.2.0",
+    "redux": "^4.1.0"
   }
 }
