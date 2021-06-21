@@ -1,19 +1,21 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Button, Table, Row, Col } from "antd";
 import MyPagination from "@/components/pagination";
-import UserModal from "@/components/modal/user";
+import UserModal, { UserID } from "@/components/modal/user";
 import { getUserList } from "@/api";
 import "./index.less";
 
+import { MapKey, ResponseUserInfo } from "@/types/api"
+
 export default function User() {
-  const [tableData, setData] = useState([]);
-  const [tableCol, setCol] = useState([]);
+  const [tableData, setData] = useState<ResponseUserInfo[]>([]);
+  const [tableCol, setCol] = useState<MapKey>([]);
   const [total, setTotal] = useState(0);
   const [showModal, setShow] = useState(false);
-  const [chooseId, setId] = useState(null);
+  const [chooseId, setId] = useState<UserID>(null);
   const [pageData, setPage] = useState(null);
   // 显示弹窗
-  const showInfoModal = useCallback((id, type) => {
+  const showInfoModal = useCallback((id: UserID, type: boolean) => {
     if (id) {
       setId(id);
     } else {
@@ -35,7 +37,7 @@ export default function User() {
       key: "active",
       title: "操作",
       align: "center",
-      render: (text, record) => (
+      render: (text: string, record: ResponseUserInfo) => (
         <Button type="link" onClick={() => showEdit(record.user_id)}>
           编辑
         </Button>
@@ -45,7 +47,7 @@ export default function User() {
   );
   const renderTitle = useCallback(
     () => (
-      <Row justify="space-between" align="center" gutter={80}>
+      <Row justify="space-between" gutter={80}>
         <Col style={{ lineHeight: "32px" }}>用户信息列表</Col>
         <Col>
           <Button type="primary" onClick={() => showInfoModal(null, true)}>

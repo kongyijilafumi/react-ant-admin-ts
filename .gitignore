@@ -6,7 +6,7 @@
 .pnp.js
 yarn.lock
 package-lock.json
-/color.js*
+/color.json
 /src/assets/theme/*.json
 # testing
 /coverage

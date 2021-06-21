@@ -1,19 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Table, Row, Col } from "antd";
-import TypeModal from "@/components/modal/type";
+import TypeModal, { Info } from "@/components/modal/type";
 import { getPower } from "@/api";
 import "./index.less";
-
+import { MapKey, PowerList } from "@/types/api"
 function useTypes() {
   const [showModal, setShow] = useState(false);
-  const [tableData, setData] = useState([]);
-  const [tableCol, setCol] = useState([]);
-  const [choose, setChoose] = useState(null);
+  const [tableData, setData] = useState<PowerList>([]);
+  const [tableCol, setCol] = useState<MapKey>([]);
+  const [choose, setChoose] = useState<Info>(null);
   useEffect(() => {
     getTypeData();
     // eslint-disable-next-line
   }, []);
-  const modalControl = useCallback((info, open) => {
+  const modalControl = useCallback((info: Info, open: boolean) => {
     setChoose(info);
     setShow(open);
   }, []);
@@ -23,7 +23,7 @@ function useTypes() {
       key: "active",
       title: "操作",
       align: "center",
-      render: (text, record) => (
+      render: (text: any, record: any) => (
         <Button type="link" onClick={() => modalControl(record, true)}>
           编辑
         </Button>
@@ -33,7 +33,7 @@ function useTypes() {
   );
   const renderTitle = useCallback(
     () => (
-      <Row justify="space-between" align="center" gutter={80}>
+      <Row justify="space-between" gutter={80}>
         <Col style={{ lineHeight: "32px" }}>用户信息列表</Col>
         <Col>
           <Button type="primary" onClick={() => modalControl(null, true)}>

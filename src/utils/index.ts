@@ -1,5 +1,6 @@
 import { getMenus, RouterBasename, } from "@/common";
-import { DealMenuItem, DealMenuList } from "@/common/index.d"
+import { DealMenuItem, DealMenuList } from "@/types/menu"
+import { UserInfo } from "@/types/user";
 
 interface MenuOpenData {
   openKeys: string[]
@@ -36,7 +37,7 @@ function getSessionUser() {
   return getKey(false, "userInfo");
 }
 
-function saveUser(info: string) {
+function saveUser(info: UserInfo) {
   setKey(true, "userInfo", info);
   setKey(false, "userInfo", info);
 }
@@ -122,7 +123,7 @@ function saveToken(token: Token) {
   localStorage.setItem("token", str);
 }
 
-function getToken() {
+function getToken(): Token {
   return localStorage.getItem("token");
 }
 

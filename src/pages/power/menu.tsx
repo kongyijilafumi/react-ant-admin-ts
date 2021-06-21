@@ -1,22 +1,25 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Tree, Row, Col, Button, message, Popconfirm } from "antd";
 import MyIcon from "@/components/icon";
 import { getMenu, delMenu } from "@/api";
 import MenuModal from "@/components/modal/menu";
 import "./index.less";
+import { DealMenuList } from "@/types/menu"
+
+type ModalType = "add" | "addChild" | "edit"
 
 const { TreeNode } = Tree;
 
 function useMenu() {
-  const [menus, setMenu] = useState([]);
-  const [selectInfo, setSelectInfo] = useState(null);
+  const [menus, setMenu] = useState<DealMenuList>([]);
+  const [selectInfo, setSelectInfo] = useState<{ key: string, isParent: boolean } | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState("");
+  const [modalType, setModalType] = useState<ModalType>("add");
   useEffect(() => {
     getMenuList();
   }, []);
 
-  const onSelect = (selectedKeys, info) => {
+  const onSelect = (selectedKeys: string[], info: { selected: boolean, node: { pos: string, key: string } }) => {
     let { key, pos } = info.node;
     if (info.selected) {
       setSelectInfo({ key, isParent: Boolean(pos.split("-").length === 2) });
@@ -36,7 +39,7 @@ function useMenu() {
     openModal("addChild");
   };
 
-  const openModal = (type) => {
+  const openModal = (type: ModalType) => {
     setModalType(type);
     setShowModal(true);
   };
@@ -153,6 +156,6 @@ export default function Menu() {
   );
 }
 
-Menu.route={
-  path:"/power/menu"
+Menu.route = {
+  path: "/power/menu"
 }

@@ -3,17 +3,17 @@ import { connect } from "react-redux";
 import MenuDnd from "@/components/menu-dnd";
 import MyIcon from "@/components/icon";
 import { withRouter } from "react-router-dom";
-import { filterOpenKey } from "@/store/action";
+import { filterOpenKey } from "@/store/menu/action";
 import { getCurrentUrl, reduceMenuList } from "@/utils";
 import { message, Breadcrumb } from "antd";
 import { getMenus } from "@/common";
-import { DealMenuItem, DealMenuList } from "@/common/index.d"
-import state, { StateOpenedMenu } from "@/store/index.d"
+import { DealMenuItem, DealMenuList } from "@/types/menu"
+import state, { OpenedMenu } from "@/types/store"
 import { Dispatch } from "redux"
 import { History } from "history"
 
 type Props = {
-  openedMenu: StateOpenedMenu
+  openedMenu: OpenedMenu
   filterKey: (key: string) => void
   history: History
   childKey: string
@@ -21,8 +21,8 @@ type Props = {
 }
 
 const mapStateToProps = (state: state) => ({
-  openedMenu: state.global.openedMenu,
-  childKey: state.global.selectMenuKey,
+  openedMenu: state.menu.openedMenu,
+  childKey: state.menu.selectMenuKey,
 });
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   filterKey: (key: string) => dispatch(filterOpenKey(key)),
@@ -48,7 +48,7 @@ async function getBreadArray(ckey: string) {
 
 const InitData: DealMenuItem[] = []
 
-function TopMenu({ openedMenu, filterKey, history, childKey }: Props) {
+function TopMenu({ openedMenu, filterKey, history, childKey }: Props | any) {
   const [breadArr, setBread] = useState(InitData);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ function TopMenu({ openedMenu, filterKey, history, childKey }: Props) {
   }, [childKey]);
 
   const closeTopMenu = useCallback(
-    (path: string, nextItem: StateOpenedMenu, isCurrent: boolean) => {
+    (path: string, nextItem: OpenedMenu, isCurrent: boolean) => {
       if (nextItem) {
         filterKey(path);
       } else {
@@ -98,8 +98,8 @@ function TopMenu({ openedMenu, filterKey, history, childKey }: Props) {
     </div>
   );
 }
-const RouterTop = withRouter(TopMenu)
+
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(RouterTop);
+)(withRouter(TopMenu));

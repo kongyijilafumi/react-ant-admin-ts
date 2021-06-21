@@ -74,9 +74,9 @@
     "workbox-webpack-plugin": "5.1.4"
   },
   "scripts": {
-    "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "start": "node color && node scripts/start.js",
+    "start mock": "node color && env-cmd -f .env.mock node scripts/start.js",
+    "build": "node color && node scripts/build.js"
   },
   "eslintConfig": {
     "extends": [
@@ -151,6 +151,15 @@
   "babel": {
     "presets": [
       "react-app"
+    ],
+    "plugins": [
+      [
+        "import",
+        {
+          "libraryName": "antd",
+          "style": true
+        }
+      ]
     ]
   },
   "devDependencies": {
@@ -159,14 +168,23 @@
     "@types/react-beautiful-dnd": "^13.0.0",
     "@types/react-color": "^3.0.4",
     "@types/react-router-dom": "^5.1.7",
+    "ant-theme-generator": "^1.0.1",
     "antd": "^4.16.3",
     "axios": "^0.21.1",
+    "babel-plugin-import": "^1.13.3",
     "dayjs": "^1.10.5",
+    "echarts": "^5.1.2",
+    "echarts-for-react": "^3.0.1",
+    "env-cmd": "^10.1.0",
+    "less": "^4.1.1",
+    "less-loader": "^5.0.0",
     "react-beautiful-dnd": "^13.1.0",
     "react-color": "^2.19.3",
     "react-redux": "^7.2.4",
     "react-router-cache-route": "^1.11.1",
     "react-router-dom": "^5.2.0",
-    "redux": "^4.1.0"
+    "redux": "^4.1.0",
+    "style-resources-loader": "^1.4.1",
+    "webpack-router-generator": "^1.0.8"
   }
 }

@@ -3,7 +3,7 @@ import MyIcon from "@/components/icon";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Link } from "react-router-dom";
 import "./index.less";
-import { StateOpenedMenu } from "@/store/index.d"
+import { OpenedMenu } from "@/types/menu"
 // 重新记录数组顺序
 const reorder = (list: ListType, startIndex: number, endIndex: number) => {
   const result = Array.from(list);
@@ -13,10 +13,10 @@ const reorder = (list: ListType, startIndex: number, endIndex: number) => {
   result.splice(endIndex, 0, removed);
   return result;
 };
-type ListType = StateOpenedMenu[]
+type ListType = OpenedMenu[]
 interface DndProps {
   rangeVal: ListType
-  onClose: (a1: string, a2: StateOpenedMenu, a3: boolean) => void
+  onClose: (a1: string, a2: OpenedMenu, a3: boolean) => void
   currentKey: string
 }
 const InitData: ListType = []
@@ -53,7 +53,7 @@ export default function Dnd({ rangeVal, onClose, currentKey }: DndProps) {
   );
 
   // 关闭当前顶部菜单
-  const closeCurrent = (item: StateOpenedMenu) => {
+  const closeCurrent = (item: OpenedMenu) => {
     const newData = data.filter((i) => i.path !== item.path);
     const next = newData[newData.length - 1];
     if (next) {

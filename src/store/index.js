@@ -1,8 +1,10 @@
 import { createStore, combineReducers } from "redux";
-import appReducer from "./reducer";
+import MenuReducer from "./menu/reducer";
+import UserReducer from "./user/reducer";
 
 const reducer = combineReducers({
-  global: appReducer,
+  menu: MenuReducer,
+  user: UserReducer,
 });
 
 const store = createStore(

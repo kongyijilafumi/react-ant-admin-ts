@@ -1,17 +1,17 @@
 import React from "react";
-import { addOpenedMenu, setOpenKey, setSelectKey } from "@/store/action";
+import { addOpenedMenu, setOpenKey, setSelectKey } from "@/store/menu/action";
 import { connect, DispatchProp } from "react-redux";
 import { getCurrentUrl, getMenuParentKey } from "@/utils";
 import Error from "@pages/err";
-import State, { StateOpenedMenu } from "@/store";
+import State, { OpenedMenu } from "@/types/store";
 
 const mapStateToProps = (state: State) => ({
-  openMenus: state.global.openedMenu,
-  userInfo: state.global.userInfo,
+  openMenus: state.menu.openedMenu,
+  userInfo: state.user,
 });
 
 const mapDispatchToProps = (dispatch: DispatchProp["dispatch"]) => ({
-  addOpenedMenuFn: (val: StateOpenedMenu) => dispatch(addOpenedMenu(val)),
+  addOpenedMenuFn: (val: OpenedMenu) => dispatch(addOpenedMenu(val)),
   setSelectedKeys: (val: string[]) => dispatch(setSelectKey(val)),
   setOpenKeys: (val: string[]) => dispatch(setOpenKey(val)),
 });
@@ -21,13 +21,13 @@ interface Props {
   path: string
   title: string
   pageKey: string
-  openMenus: State["global"]["openedMenu"]
+  openMenus: State["menu"]["openedMenu"]
   setOpenKeys: (val: string[]) => void
   setSelectedKeys: (val: string[]) => void
-  addOpenedMenuFn: (val: StateOpenedMenu) => void
+  addOpenedMenuFn: (val: OpenedMenu) => void
   type: string
   components: React.SFC
-  userInfo: State["global"]["userInfo"]
+  userInfo: State["user"]
   [key: string]: any
 }
 
@@ -77,7 +77,7 @@ class Intercept extends React.Component<Props, any> {
     });
   };
 
-  addMenus = (info: StateOpenedMenu | undefined, key: string, path: string, title: string) => {
+  addMenus = (info: OpenedMenu | undefined, key: string, path: string, title: string) => {
     if (!info) {
       this.props.addOpenedMenuFn({
         key,

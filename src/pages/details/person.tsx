@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { ReactNode, useState } from "react";
 import { Card, Tag, Input, Tabs, Row, Col, List, Space, Avatar } from "antd";
 import MyIcon from "@/components/icon";
 import "./index.less";
@@ -26,7 +26,7 @@ const listData = Array.from({ length: 10 }, (v, k) => ({
     "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
 }));
 
-const IconText = ({ icon, text }) => (
+const IconText = ({ icon, text }: { icon: ReactNode, text: string }) => (
   <Space>
     {icon}
     {text}

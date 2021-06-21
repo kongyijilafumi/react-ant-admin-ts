@@ -10,25 +10,26 @@ import {
   Spin,
   message,
 } from "antd";
-import MyPagination from "@/components/pagination";
+import MyPagination, { PageInfo } from "@/components/pagination";
 import { getMsg, addMsg } from "@/api";
-
 import "./index.less";
+import { MessageList, MapKey } from "@/types/api"
+
 export default function SearchPage() {
   const [form] = Form.useForm();
   const [searchForm] = Form.useForm();
-  const [pageData, setPageData] = useState(undefined);
-  const [tableData, setData] = useState([]);
-  const [tableCol, setCol] = useState([]);
+  const [pageData, setPageData] = useState<PageInfo | undefined>(undefined);
+  const [tableData, setData] = useState<MessageList>([]);
+  const [tableCol, setCol] = useState<MapKey>([]);
   const [load, setLoad] = useState(true);
   const [total, setTotal] = useState(0);
   const [showModal, setShow] = useState(false);
 
   // 获取列表
-  const getDataList = (data) => {
+  const getDataList = (data: PageInfo) => {
     getMsg(data).then((res) => {
       const { data, status } = res;
-      if (status === 0) {
+      if (status === 0 && data) {
         let { list, total, mapKey } = data;
         mapKey = mapKey.map((i) => {
           if (i.key === "description") {
@@ -66,14 +67,14 @@ export default function SearchPage() {
   };
 
   // 页码改版
-  const pageChange = (pageData) => {
+  const pageChange = (pageData: PageInfo) => {
     let data = searchForm.getFieldsValue();
     getDataList({ ...pageData, ...data });
     setPageData(pageData);
   };
 
   const tableTop = (
-    <Row justify="space-between" align="center" gutter={80}>
+    <Row justify="space-between" gutter={80}>
       <Col style={{ lineHeight: "32px" }}>表格查询</Col>
       <Col>
         <Button type="primary" onClick={() => setShow(true)}>

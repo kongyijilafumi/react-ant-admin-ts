@@ -5,18 +5,25 @@ import Layout from "@/layout";
 import Login from "@pages/login";
 import { connect } from "react-redux";
 import { RouterBasename } from "@/common";
-import { setUserInfoAction } from "@/store/action";
+import { setUserInfoAction } from "@/store/user/action";
+import State from "@/types/store"
 import { getLocalUser } from "@/utils";
+import { Dispatch } from "redux"
 
-const mapStateToProps = (state) => ({
-  userInfo: state.global.userInfo,
+interface AppRouterProps {
+  userInfo: State["user"]
+  setUser: (info: State["user"]) => void
+}
+
+const mapStateToProps = (state: State) => ({
+  userInfo: state.user,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  setUser: (info) => dispatch(setUserInfoAction(info)),
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setUser: (info: State["user"]) => dispatch(setUserInfoAction(info)),
 });
 
-function AppRouter({ userInfo, setUser }) {
+function AppRouter({ userInfo, setUser }: AppRouterProps) {
   const [loading, setLoad] = useState(true);
   useEffect(() => {
     if (!userInfo) {

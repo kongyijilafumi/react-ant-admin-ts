@@ -4,12 +4,14 @@ import { getVisitorList, getVisitorData } from "@/api";
 import { Line as LineEchart } from "@/components/echarts";
 import MyPagination from "@/components/pagination";
 import "./index.less";
+import { VisitData, MapKey } from "@/types/api"
 
 const getOpt = () => ({
   xAxis: {
     type: "category",
     boundaryGap: false,
     show: false,
+    data: []
   },
   yAxis: {
     show: false,
@@ -45,7 +47,7 @@ const strokeColor = {
   "0%": "#108ee9",
   "100%": "#87d068",
 };
-function getPercentage(up, down) {
+function getPercentage(up: number, down: number) {
   if (!down) return 0;
   return Number(((up / down) * 100).toFixed(2));
 }
@@ -55,14 +57,14 @@ const echartStyle = {
 };
 const getTableTitle = () => {
   return (
-    <Row justify="space-between" align="center" gutter={80}>
+    <Row justify="space-between" gutter={80}>
       <Col style={{ lineHeight: "32px" }}>访问统计</Col>
     </Row>
   );
 };
 function useVistor() {
-  const [tableCol, setCol] = useState([]);
-  const [tableData, setData] = useState([]);
+  const [tableCol, setCol] = useState<MapKey>([]);
+  const [tableData, setData] = useState<VisitData[]>([]);
   const [total, setTotal] = useState(0);
   const [visitorOpt, setVisitor] = useState(getOpt());
   const [dealOpt, setDeal] = useState(getOpt());
@@ -75,10 +77,10 @@ function useVistor() {
       if (status === 0 && data) {
         const vOpt = { ...visitorOpt };
         const dOpt = { ...dealOpt };
-        vOpt.xAxis.data = data.ips.map((i) => i.time);
-        vOpt.series[0].data = data.ips.map((i) => i.value);
-        dOpt.xAxis.data = data.deal.map((i) => i.time);
-        dOpt.series[0].data = data.deal.map((i) => i.value);
+        (vOpt.xAxis.data as string[]) = data.ips.map((i) => i.time);
+        (vOpt.series[0].data as number[]) = data.ips.map((i) => i.value);
+        (dOpt.xAxis.data as string[]) = data.deal.map((i) => i.time);
+        (dOpt.series[0].data as number[]) = data.deal.map((i) => i.value);
         setDeal(dOpt);
         setVisitor(vOpt);
         setSumV(data.today.ips);
@@ -88,7 +90,7 @@ function useVistor() {
     // eslint-disable-next-line
   }, []);
 
-  const getList = (data) => {
+  const getList = (data: any) => {
     getVisitorList(data).then((res) => {
       const { status, data } = res;
       if (status === 0 && data) {

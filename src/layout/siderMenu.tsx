@@ -4,17 +4,17 @@ import { Link } from "react-router-dom";
 import { Layout, Menu, Button, Affix } from "antd";
 import MyIcon from "@/components/icon";
 import { getMenus } from "@/common";
-import { setOpenKey } from "@/store/action";
+import { setOpenKey } from "@/store/menu/action";
 import { filterMenuList, stopPropagation } from "@/utils";
 import { Dispatch } from "redux"
-import state from "@/store"
-import { DealMenuList } from "@/common/index.d"
+import State from "@/types/store"
+import { DealMenuList } from "@/types/menu"
 
 interface MenuDomProps {
-  openKeys: state["global"]["openMenuKey"]
-  selectedKeys: state["global"]["selectMenuKey"]
+  openKeys: State["menu"]["openMenuKey"]
+  selectedKeys: State["menu"]["selectMenuKey"]
   setOpenKeys: (val: string[]) => void
-  userInfo: state["global"]["userInfo"]
+  userInfo: State["user"]
 }
 
 
@@ -26,10 +26,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setOpenKeys: (val: string[]) => dispatch(setOpenKey(val)),
 });
 
-const mapStateToProps = (state: state) => ({
-  openKeys: state.global.openMenuKey,
-  selectedKeys: state.global.selectMenuKey,
-  userInfo: state.global.userInfo,
+const mapStateToProps = (state: State) => ({
+  openKeys: state.menu.openMenuKey,
+  selectedKeys: state.menu.selectMenuKey,
+  userInfo: state.user,
 });
 const InitMenuList: DealMenuList = []
 

@@ -1,8 +1,8 @@
 import { Provider } from "react-redux";
 import store from "./store";
-import loadable from "@loadable/component";
+import loadable, { LoadableComponent } from "@loadable/component";
 const AppRouter = loadable(() => import("./router/appRouter"));
-const Theme = process.env.showColorSet ? (
+const Theme: JSX.Element | LoadableComponent<any> = process.env.showColorSet ? (
   loadable(() => import("./components/theme"))
 ) : (
   <></>
@@ -12,7 +12,7 @@ function App() {
     <Provider store={store}>
       <AppRouter />
       {process.env.showColorSet && <Theme />}
-    </Provider>
+    </Provider >
   );
 }
 export default App;

@@ -2,18 +2,18 @@ import { Layout, Menu, Dropdown } from "antd";
 import logo from "@/assets/images/logo.svg";
 import MyIcon from "@/components/icon/";
 import { connect } from "react-redux";
-import { clearUser } from "@/store/action";
+import { clearUser } from "@/store/user/action";
 import { clearSessionUser, setKey, saveToken } from "@/utils";
 import { Dispatch } from "redux"
-import state from "@/store/index.d"
+import State from "@/types/store"
 const { Header } = Layout;
 
-const mapStateToProps = (state: state) => ({
-  userInfo: state.global.userInfo,
+const mapStateToProps = (state: State) => ({
+  userInfo: state.user,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  userOut: (info: state["global"]["userInfo"]) => {
+  userOut: (info: State["user"]) => {
     clearSessionUser();
     if (info) {
       info.isLogin = false;
@@ -41,8 +41,8 @@ const RightMenu = ({ logout }: {
 const getPopupContainer = (HTMLElement: HTMLElement) => HTMLElement;
 
 const HeaderDom = ({ userInfo, userOut }: {
-  userInfo: state["global"]["userInfo"];
-  userOut: (u: state["global"]["userInfo"]) => void;
+  userInfo: State["user"];
+  userOut: (u: State["user"]) => void;
 }) => {
   return (
     <Header className="header">

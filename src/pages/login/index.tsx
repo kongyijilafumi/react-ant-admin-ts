@@ -3,13 +3,20 @@ import { Form, Input, Button, Checkbox, message } from "antd";
 import { connect } from "react-redux";
 import MyIcon from "@/components/icon";
 import { saveUser, getLocalUser, saveToken } from "@/utils";
-import { setUserInfoAction } from "@/store/action";
+import { setUserInfoAction } from "@/store/user/action";
 import { login } from "@/api";
+import { Dispatch } from "redux"
+import { UserInfo } from "@/types/user"
 import "./index.less";
 
-const mapDispatchToProps = (dispatch) => ({
-  setUserInfo: (info) => dispatch(setUserInfoAction(info)),
+interface LoginProps {
+  setUserInfo: (info: UserInfo) => void
+}
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setUserInfo: (info: UserInfo) => dispatch(setUserInfoAction(info)),
 });
+
 const IPT_RULE_USERNAME = [
   {
     required: true,
@@ -24,22 +31,22 @@ const IPT_RULE_PASSWORD = [
   },
 ];
 
-function useLogin(setUserInfo) {
+function useLogin(setUserInfo: LoginProps["setUserInfo"]) {
   const [btnLoad, setBtnLoad] = useState(false);
-  const onFinish = (values) => {
+  const onFinish = (values: any) => {
     setBtnLoad(true);
     login(values)
       .then((res) => {
         const { data, msg, status, token } = res;
         setBtnLoad(false);
-        if (status === 1) return;
+        if (status === 1 && !data) return;
+        const info = Object.assign(data, { isLogin: true })
         saveToken(token);
-        data.isLogin = true;
         message.success(msg);
         if (values.remember) {
-          saveUser(data);
+          saveUser(info);
         }
-        setUserInfo(data);
+        setUserInfo(info);
       })
       .catch(() => {
         setBtnLoad(false);
@@ -48,7 +55,7 @@ function useLogin(setUserInfo) {
   return { btnLoad, onFinish };
 }
 
-function Login({ setUserInfo }) {
+function Login({ setUserInfo }: LoginProps) {
   const { btnLoad, onFinish } = useLogin(setUserInfo);
   return (
     <div className="login-container">
@@ -73,6 +80,7 @@ function Login({ setUserInfo }) {
             <Input
               prefix={<MyIcon type="icon_locking" />}
               type="password"
+              autoComplete="off"
               placeholder="密码:admin123/user123"
             />
           </Form.Item>

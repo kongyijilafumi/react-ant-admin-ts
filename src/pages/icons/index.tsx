@@ -2,16 +2,27 @@ import React, { useState } from "react";
 import { Input, Row, Col } from "antd";
 import MyIcon from "@/components/icon";
 import "./index.less";
+
+interface IconItem {
+  icon_id: string,
+  name: string,
+  font_class: string,
+  unicode: string,
+  unicode_decimal: number
+}
+interface MyIconItem extends IconItem {
+  type: string
+}
 const iconData = require("@/assets/json/iconfont");
 const prefix_name = iconData.css_prefix_text;
-const initData = iconData.glyphs.map((item) => ({
+const initData: MyIconItem[] = iconData.glyphs.map((item: IconItem) => ({
   ...item,
   type: prefix_name + item.font_class,
 }));
 
 function useIcons() {
   const [icons, setIcons] = useState(initData);
-  const change = (e) => {
+  const change = (e: any) => {
     const val = e.target.value;
     if (!val || !val.replace(/\s/g, "")) {
       setIcons(initData);
@@ -42,7 +53,7 @@ export default function Icons() {
         </Col>
       </Row>
       <Row className="mt10 pd10">
-        {icons.map((item) => {
+        {icons.map((item: MyIconItem) => {
           return (
             <Col span={2} className="icon-item" key={item.icon_id}>
               <MyIcon type={item.type} />

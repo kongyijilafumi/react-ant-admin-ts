@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, Avatar, Row, Col, Typography, Modal, Form, Input } from "antd";
 import MyIcon from "@/components/icon";
 import "./index.less";
@@ -130,4 +130,4 @@ export default function CardPage() {
     </div>
   );
 }
-CardPage.route={ path:"/list/card" }
+CardPage.route = { path: "/list/card" }

@@ -1,7 +1,7 @@
 import { getLocalMenu, saveLocalMenu } from "../utils";
 import { getMenu } from "@/api";
 const RouterBasename: string = "/react-ant-admin";
-import { DealMenuList } from "./index.d"
+import { DealMenuList } from "@/types/menu"
 
 
 function getMenus(): Promise<DealMenuList> {

@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { Route } from "react-router-dom";
 import { CacheRoute, CacheSwitch } from "react-router-cache-route";
-import routerList from "./list";
-import Intercept from "./intercept.js";
+import routerList from "./auto";
+import Intercept from "./intercept";
 import { getMenus } from "@/common";
 import { reduceMenuList } from "@/utils";
+import { DealMenuItem } from "@/types/menu"
 
 function useRouter() {
-  const [list, setList] = useState([]);
-  const [routerBody, setRoute] = useState(null);
+  const [list, setList] = useState<DealMenuItem[]>([]);
+  const [routerBody, setRoute] = useState<ReactElement[] | null>(null);
 
   useEffect(() => {
     getMenus().then((res) => {
@@ -20,7 +21,7 @@ function useRouter() {
         if (find) {
           router = { ...find, ...router };
         }
-        return router;
+        return (router as unknown as DealMenuItem);
       });
       if (list && list.length) {
         setList(routers);

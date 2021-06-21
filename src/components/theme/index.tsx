@@ -5,9 +5,6 @@ import Color from "@/components/color";
 import { getKey, setKey } from "@/utils";
 import "./index.less";
 
-var darkTheme: ThemeJSON = require("@/assets/theme/dark.json");
-var defaultTheme: ThemeJSON = require("@/assets/theme/default.json");
-
 interface ThemeData {
   label: string
   value: string
@@ -19,11 +16,13 @@ interface ThemeJSON {
 interface GetColor {
   background: string
 }
-const Themes: ThemeData[] = [
-  { label: "默认", value: "default", colorList: defaultTheme },
-  { label: "暗黑", value: "dark", colorList: darkTheme },
-];
-
+type ThemeList = ThemeData[]
+type ColorInfo = {
+  pageX: number
+  pageY: number
+  key: string
+  value: string
+}
 
 function findInfoColor(list: ThemeJSON[], obj: ThemeJSON) {
   return list.map((item) => {
@@ -47,11 +46,24 @@ function setObjVal(list: ThemeJSON[], obj: ThemeJSON) {
 const getColor = (color: string): GetColor => ({
   background: color,
 });
-const THEME_NAME: string = getKey(true, "theme-name");
+
+
+const darkTheme: ThemeJSON | any = require("@/assets/theme/dark.json");
+const defaultTheme: ThemeJSON | any = require("@/assets/theme/default.json");
+
+const Themes: ThemeList = [
+  { label: "默认", value: "default", colorList: defaultTheme },
+  { label: "暗黑", value: "dark", colorList: darkTheme },
+];
+
+
+const THEME_NAME = getKey(true, "theme-name");
 const THEME: ThemeJSON = getKey(true, "theme");
+const initSelectInfo = { key: '', value: '', pageX: 0, pageY: 0 }
+
 export default function SetTheme() {
   const [visible, setVisible] = useState(false);
-  const [selectInfo, setInfo] = useState({});
+  const [selectInfo, setInfo] = useState<ColorInfo>(initSelectInfo);
   const [colorShow, setColorShow] = useState(false);
   const [colorList, setColor] = useState(process.env.varColors);
   const [themeStyle, setStyle] = useState(THEME_NAME || Themes[0].value);
@@ -83,7 +95,7 @@ export default function SetTheme() {
       let newColorList = [...colorList.map((i) => ({ ...i }))];
       newColorList = findInfoColor(newColorList, THEME);
       let newColorObj = {
-        ...Themes.find((i) => i.value === THEME_NAME).colorList,
+        ...Themes.find((i) => i.value === THEME_NAME)?.colorList,
       };
       setTheme(newColorObj, newColorList, false);
       setStyle(THEME_NAME);
@@ -103,7 +115,7 @@ export default function SetTheme() {
 
   // 自定义颜色选中
   const onChangeComplete = useCallback(
-    (v: string, k: string) => {
+    (v, k: string) => {
       let newColorList = [...colorList.map((i) => ({ ...i }))];
       newColorList.forEach((i) => {
         if (i.key === k) {
@@ -111,7 +123,7 @@ export default function SetTheme() {
         }
       });
       let colorObj = {
-        ...Themes.find((i) => i.value === themeStyle).colorList,
+        ...Themes.find((i) => i.value === themeStyle)?.colorList,
       };
       setObjVal(newColorList, colorObj);
       setTheme(colorObj, newColorList);
@@ -136,7 +148,7 @@ export default function SetTheme() {
 
   // 保存本地
   const saveLocalTheme = useCallback(() => {
-    let themeObj = { ...Themes.find((i) => i.value === themeStyle).colorList };
+    let themeObj = { ...Themes.find((i) => i.value === themeStyle)?.colorList };
     themeObj = colorList.reduce((a, c) => {
       a[c.key] = c.value;
       return a;
@@ -151,7 +163,7 @@ export default function SetTheme() {
     (e) => {
       const { value } = e.target;
       const colorObj = {
-        ...Themes.find((i) => i.value === value).colorList,
+        ...Themes.find((i) => i.value === value)?.colorList,
       };
       setObjVal(colorList, colorObj);
       setTheme(colorObj, colorList);
