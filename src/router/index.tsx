@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import { Route } from "react-router-dom";
 import { CacheRoute, CacheSwitch } from "react-router-cache-route";
-import routerList from "./auto";
+import routerList from "./list";
 import Intercept from "./intercept";
 import { getMenus } from "@/common";
 import { reduceMenuList } from "@/utils";
@@ -54,6 +54,8 @@ function useRouter() {
 
 const Router = () => {
   const { routerBody } = useRouter();
+  console.log(routerBody);
+  
   return <CacheSwitch>{routerBody}</CacheSwitch>;
 };
 
