@@ -5,23 +5,23 @@ import { MessageAPi, ResponseData, LoginApi, PowerApi, MenuInfoApi, UserListApi,
 
 const request = process.env.REACT_APP_MOCK ? mock : ajax;
 
-const getMenu = (): Promise<DealMenuList> => request.get("/getmenu");
-const login = (data: any): Promise<LoginApi> => request.post("/login", data);
-const addMenu = (data: any): Promise<ResponseData> => request.post("/addmenu", data);
-const addMsg = (data: any): Promise<ResponseData> => request.post("/addmessage", data);
-const getMsg = (data: any): Promise<MessageAPi> => request.post("/getmessage", data);
-const getPower = (): Promise<PowerApi> => request.get("/getpower");
-const delMenu = (data: any): Promise<ResponseData> => request.post("/delmenu", data);
-const getMenuInfo = (data: any): Promise<MenuInfoApi> => request.post("/getmenuinfo", data);
-const editMenu = (data: any): Promise<ResponseData> => request.post("/editmenuinfo", data);
-const getVisitorList = (data: any): Promise<VisitorListApi> => request.post("/getiplist", data);
-const getVisitorData = (): Promise<VisitorApi> => request.get("/getvisitordata");
-const getUserList = (data: any): Promise<UserListApi> => request.post("/getuserlist", data);
-const addUser = (data: any): Promise<ResponseData> => request.post("/adduserinfo", data);
-const getUser = (data: any): Promise<ResponseData & { data: ResponseUserInfo }> => request.post("/getuserinfo", data);
-const editUser = (data: any): Promise<ResponseData> => request.post("/edituserinfo", data);
-const editType = (data: any): Promise<ResponseData> => request.post("/edittype", data);
-const addType = (data: any): Promise<ResponseData> => request.post("/addtype", data);
+const getMenu = () => request.get("/getmenu") as Promise<DealMenuList>;
+const login = (data: any) => request.post("/login", data) as Promise<LoginApi>;
+const addMenu = (data: any) => request.post("/addmenu", data) as Promise<ResponseData>;
+const addMsg = (data: any) => request.post("/addmessage", data) as Promise<ResponseData>;
+const getMsg = (data: any) => request.post("/getmessage", data) as Promise<MessageAPi>;
+const getPower = () => request.get("/getpower") as Promise<PowerApi>;
+const delMenu = (data: any) => request.post("/delmenu", data) as Promise<ResponseData>;
+const getMenuInfo = (data: any) => request.post("/getmenuinfo", data) as Promise<MenuInfoApi>;
+const editMenu = (data: any) => request.post("/editmenuinfo", data) as Promise<ResponseData>;
+const getVisitorList = (data: any) => request.post("/getiplist", data) as Promise<VisitorListApi>;
+const getVisitorData = () => request.get("/getvisitordata") as Promise<VisitorApi>;
+const getUserList = (data: any) => request.post("/getuserlist", data) as Promise<UserListApi>;
+const addUser = (data: any) => request.post("/adduserinfo", data) as Promise<ResponseData>;
+const getUser = (data: any) => request.post("/getuserinfo", data) as Promise<ResponseData & { data: ResponseUserInfo }>;
+const editUser = (data: any) => request.post("/edituserinfo", data) as Promise<ResponseData>;
+const editType = (data: any) => request.post("/edittype", data) as Promise<ResponseData>;
+const addType = (data: any) => request.post("/addtype", data) as Promise<ResponseData>;
 export {
   getMenu,
   login,

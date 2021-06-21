@@ -107,7 +107,7 @@ function reduceMenuList(list: DealMenuList): DealMenuList {
       a.push(...c.children);
     }
     return a;
-  }, <any[]>[]);
+  }, ([] as Array<DealMenuItem>));
 }
 
 function getLocalMenu(): DealMenuList {

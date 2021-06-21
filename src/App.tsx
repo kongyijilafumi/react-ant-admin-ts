@@ -1,11 +1,12 @@
 import { Provider } from "react-redux";
 import store from "./store";
-import loadable, { LoadableComponent } from "@loadable/component";
+import loadable from "@loadable/component";
 const AppRouter = loadable(() => import("./router/appRouter"));
-const Theme: JSX.Element | LoadableComponent<any> = process.env.showColorSet ? (
+const Fn = () => <></>
+const Theme = process.env.showColorSet ? (
   loadable(() => import("./components/theme"))
 ) : (
-  <></>
+  Fn
 );
 function App() {
   return (

@@ -76,7 +76,7 @@ export default function UserModal({ user_id, isShow, onCancel, onOk }: UserProps
         <Form.Item name="account" rules={accountRule} label="登录账号">
           <Input placeholder="登录账号" />
         </Form.Item>
-        <Form.Item name="pswd" rules={!user_id && paswdRule} label="登录密码">
+        <Form.Item name="pswd" rules={!user_id ? paswdRule : undefined} label="登录密码">
           <Input type="password" placeholder="登录密码,若填写则表示修改" />
         </Form.Item>
         <Form.Item rules={menuRule} name="type" label="菜单权限">

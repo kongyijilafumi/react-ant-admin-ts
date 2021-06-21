@@ -19,7 +19,7 @@ function useMenu() {
     getMenuList();
   }, []);
 
-  const onSelect = (selectedKeys: string[], info: { selected: boolean, node: { pos: string, key: string } }) => {
+  const onSelect = (s: any, info: any) => {
     let { key, pos } = info.node;
     if (info.selected) {
       setSelectInfo({ key, isParent: Boolean(pos.split("-").length === 2) });

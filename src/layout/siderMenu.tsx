@@ -50,11 +50,11 @@ const MenuDom = ({ openKeys, selectedKeys, setOpenKeys, userInfo }: MenuDomProps
   }, []);
 
   // 菜单组折叠
-  const onOpenChange = (keys: string[]) => {
-    setOpenKeys(keys);
+  const onOpenChange = (keys: React.Key[]) => {
+    setOpenKeys((keys as string[]));
   };
   // 折叠菜单
-  const toggleCollapsed = (e) => {
+  const toggleCollapsed = (e: any) => {
     setCollapsed(!collapsed);
     stopPropagation(e);
   };

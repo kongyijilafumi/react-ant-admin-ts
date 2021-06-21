@@ -41,7 +41,7 @@ export interface PowerApi extends ResponseData {
 }
 
 export interface MenuInfoApi extends ResponseData {
-  data: MenuItem
+  data: MenuItem | null
 }
 
 export type ResponseUserInfo = {

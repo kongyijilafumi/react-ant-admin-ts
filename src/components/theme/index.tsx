@@ -69,7 +69,7 @@ export default function SetTheme() {
   const [themeStyle, setStyle] = useState(THEME_NAME || Themes[0].value);
   // 关闭色板
   const onCloseColor = useCallback(() => {
-    setInfo({});
+    setInfo(initSelectInfo);
     setColorShow(false);
   }, []);
 
@@ -184,7 +184,6 @@ export default function SetTheme() {
         onClose={onClose}
         width={400}
         visible={visible}
-        onClick={onCloseColor}
       >
         <Radio.Group
           options={Themes}

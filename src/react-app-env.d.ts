@@ -10,7 +10,13 @@ declare namespace NodeJS {
     readonly varColors: { [key: string]: string }[]
   }
 }
-
+declare namespace globalThis {
+  interface Window {
+    less: {
+      modifyVars: (s: { [key: string]: string }) => Promise<any>
+    };
+  }
+}
 declare module '*.avif' {
   const src: string;
   export default src;

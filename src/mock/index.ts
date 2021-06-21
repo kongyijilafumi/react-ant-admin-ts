@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import { message } from "antd";
-
-type MapKey = PowerCol[]
+import { PowerApi, LoginApi, ResponseData, MenuInfoApi, MessageList, MessageAPi } from "@/types/api"
 
 interface MockMenuItem {
   title: string
@@ -9,49 +8,25 @@ interface MockMenuItem {
   key: string
   parentKey: string,
   icon: string,
-  type: string | string[],
+  type: string,
   order: number,
   parentPath?: string
+  keepAlive?: string
   children?: MockMenuItem[]
 }
-interface MockMenuList {
-  [key: number]: MockMenuItem
-}
-interface MockResponse {
-  status: number
-  data?: MockMenuItem[] | {
-    total?: number
-    name?: string
-    mapKey?: MapKey
-    list?: MsgList
-    user_id?: number
-    username?: string
-    account?: string
-    type?: string
-  }
-  msg?: string
-}
-interface PowerResponse extends MockResponse {
-  mapKey: MapKey
-}
-interface PowerCol {
-  title: string
-  dataIndex: string
-  key: string
-}
-type MsgList = Msg[]
 
-interface Msg {
-  m_id: number
-  name: string
-  description: string
-  creator: string
-  add_time: string
-  [key: string]: any
-}
-
-interface MockDataType {
-  [key: string]: MockResponse | PowerResponse | MockMenuList
+type MockDataType = {
+  "/getmenu": MockMenuItem[]
+  "/getpower": PowerApi
+  "/login": LoginApi
+  "/addmenu": ResponseData
+  "/addmessage": ResponseData
+  "/getmessage": MessageAPi
+  "/delmenu": ResponseData
+  "/getmenuinfo": ResponseData & { data: MockMenuItem | null }
+  "/editmenuinfo": ResponseData
+  "/getvisitordata": ResponseData
+  [key: string]: ResponseData | MockMenuItem[] | PowerApi | LoginApi | MenuInfoApi
 }
 
 let menu: MockMenuItem[] = [
@@ -224,7 +199,7 @@ let menu: MockMenuItem[] = [
   },
 ];
 
-const power: PowerResponse = {
+const power = {
   status: 0,
   data: [
     { type: "0", name: "超级管理员" },
@@ -234,21 +209,23 @@ const power: PowerResponse = {
     { title: "权限代号", dataIndex: "type", key: "type" },
     { title: "权限简称", dataIndex: "name", key: "name" },
   ],
+  msg: ""
 };
 
-const userInfo: MockResponse = {
+const userInfo = {
   msg: "登录成功",
   status: 0,
-  data: { user_id: 1, username: "超级管理员", account: "admin", type: "0" },
+  token: "12323",
+  data: { user_id: 1, username: "超级管理员", account: "admin", type: "0", isLogin: true },
 };
 
-const addMenu: MockResponse = {
+const addMenu = {
   msg: "添加成功,菜单栏需要关闭页面重新打开即可生效！",
   status: 0,
 };
-const addMsg: MockResponse = { msg: "添加成功", status: 0 };
+const addMsg = { msg: "添加成功", status: 0 };
 
-const msgList: Msg[] = [
+const msgList: MessageList = [
   {
     m_id: 1,
     name: "第一条消息",
@@ -281,7 +258,7 @@ const msgList: Msg[] = [
     add_time: "2021-04-20 17:28:45",
   },
 ];
-const msg: MockResponse = {
+const msg: MessageAPi = {
   status: 0,
   data: {
     mapKey: [
@@ -291,11 +268,13 @@ const msg: MockResponse = {
       { title: "创建人", dataIndex: "creator", key: "creator" },
       { title: "创建时间", dataIndex: "add_time", key: "add_time" },
     ],
+    list: msgList,
     total: 4,
   },
+
   msg: "",
 };
-const delMenu: MockResponse = { msg: "操作成功", status: 0 };
+const delMenu = { msg: "操作成功", status: 0 };
 
 const MockData: MockDataType = {
   "/getmenu": menu,
@@ -305,18 +284,20 @@ const MockData: MockDataType = {
   "/addmessage": addMsg,
   "/getmessage": msg,
   "/delmenu": delMenu,
-  "/getmenuinfo": { status: 0 },
+  "/getmenuinfo": { status: 0, msg: '', data: null },
   "/editmenuinfo": { status: 0, msg: "修改成功！" },
   "/getvisitordata": { status: 1, msg: "暂无" },
 };
-
-function get(url: string) {
+type UrlType = keyof MockDataType
+function get(url: UrlType) {
   return new Promise((res) => {
     setTimeout(() => {
       if (url === "/getmenu") {
         return res(formatMenu(MockData[url]));
+      } else {
+        let resData = MockData[url]
+        res(resData || { status: 1, msg: "暂无" });
       }
-      res(MockData[url]);
     }, 500);
   }).then((res) => (res ? res : message.error("接口暂未配置")));
 }
@@ -327,17 +308,17 @@ interface PostData extends MockMenuItem {
   description: string
 }
 
-function post(url: string, data: PostData) {
+function post(url: UrlType, data: PostData) {
   return new Promise((res, rej) => {
     setTimeout(() => {
       switch (url) {
         case "/login":
-          MockData[url].data.account = data.account;
+          userInfo.data.account = data.account;
           if (data.account.indexOf("admin") === -1) {
-            MockData[url].data.type = "1";
-            MockData[url].data.username = "普通用户";
+            userInfo.data.type = "1";
+            userInfo.data.username = "普通用户";
           }
-          return res(MockData[url]);
+          return res(userInfo);
         case "/addmenu":
           menu.push(data);
           return res(MockData[url]);
@@ -348,15 +329,21 @@ function post(url: string, data: PostData) {
             creator: userInfo.data.username,
             add_time: dayjs().format("YYYY-MM-DD HH:mm:ss"),
           });
-          msg.data.total = msgList.length;
+          if (msg.data) {
+            msg.data.total = msgList.length;
+          }
           return res(MockData[url]);
         case "/delmenu":
           let newMenu = menu.filter((i) => i.key !== data.key);
           menu = newMenu.filter((i) => i.parentKey !== data.key);
           return res(MockData[url]);
-        case "/getmenuinfo":
-          MockData[url].data = menu.find((i) => i.key === data.key);
+        case "/getmenuinfo": {
+          const findInfo = menu.find((i) => i.key === data.key);
+          if (findInfo) {
+            MockData[url].data = findInfo;
+          }
           return res(MockData[url]);
+        }
         case "/editmenuinfo":
           menu = menu.map((item) => {
             if (item.key === data.key) {
@@ -373,15 +360,18 @@ function post(url: string, data: PostData) {
           if (data.description) {
             list = list.filter((i) => i.description.includes(data.description));
           }
-          MockData[url].data.list = list;
-          msg.data.total = list.length;
-          return res(MockData[url]);
+
+          if (msg.data) {
+            msg.data.total = list.length;
+            msg.data.list = list;
+          }
+          return res(msg);
         default:
           res({ status: 1, msg: "暂无" });
           break;
       }
     }, 100);
-  }).then((res) => (res.status === 0 ? res : message.error("接口暂未配置")));
+  }).then((res: any) => (res.status === 0 ? res : message.error("接口暂未配置")));
 }
 
 function formatMenu(list: MockMenuItem[]): MockMenuItem[] | [] {
@@ -391,7 +381,7 @@ function formatMenu(list: MockMenuItem[]): MockMenuItem[] | [] {
     let praentList: MockMenuItem[] = [],
       childList: MockMenuItem[] = [];
     data.forEach((item) => {
-      item.type = Array.isArray(item.type) ? item.type : item.type.split(",");
+      (item.type as unknown as string[]) = Array.isArray(item.type) ? item.type : item.type.split(",");
       if (item.parentKey) {
         childList.push(item);
         return;

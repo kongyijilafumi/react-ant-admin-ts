@@ -33,7 +33,7 @@ const keyRules = [{ required: true, message: "请填写菜单key值" }];
 const powerRules = [{ required: true, message: "请填写菜单权限可见" }];
 const keepRules = [{ required: true, message: "请选择菜单缓存模式" }];
 const orderRules = [
-  { type: "number", min: 0, max: 10000, message: "请正确填写菜单排序大小" },
+  { min: 0, max: 10000, message: "请正确填写菜单排序大小" },
   { required: true, message: "请填写菜单排序大小" },
 ];
 const { Option } = Select;

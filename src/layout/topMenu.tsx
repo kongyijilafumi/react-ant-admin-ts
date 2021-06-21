@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import MenuDnd from "@/components/menu-dnd";
 import MyIcon from "@/components/icon";
@@ -39,7 +39,7 @@ async function getBreadArray(ckey: string) {
   arr.unshift(currentInfo);
   let parentKey = currentInfo.parentKey;
   let info;
-  while (info = getParent(list, parentKey)) {
+  while (!!(info = getParent(list, parentKey))) {
     arr.unshift(info);
     parentKey = info.parentKey;
   }
