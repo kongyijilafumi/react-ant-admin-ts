@@ -15,6 +15,7 @@ declare namespace globalThis {
     less: {
       modifyVars: (s: { [key: string]: string }) => Promise<any>
     };
+    __REDUX_DEVTOOLS_EXTENSION__: () => any
   }
 }
 declare module '*.avif' {
