@@ -48,8 +48,8 @@ const getColor = (color: string): GetColor => ({
 });
 
 
-const darkTheme: ThemeJSON | any = require("@/assets/theme/dark.json");
-const defaultTheme: ThemeJSON | any = require("@/assets/theme/default.json");
+const darkTheme: ThemeJSON = process.env.showColorSet ? require("@/assets/theme/dark.json") : {};
+const defaultTheme: ThemeJSON = process.env.showColorSet ? require("@/assets/theme/default.json") : {};
 
 const Themes: ThemeList = [
   { label: "默认", value: "default", colorList: defaultTheme },
