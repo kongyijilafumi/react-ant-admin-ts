@@ -5,7 +5,7 @@ import UserModal, { UserID } from "@/components/modal/user";
 import { getUserList } from "@/api";
 import "./index.less";
 
-import { MapKey, ResponseUserInfo } from "@/types/api"
+import { MapKey, ResponseUserInfo } from "@/types"
 
 export default function User() {
   const [tableData, setData] = useState<ResponseUserInfo[]>([]);

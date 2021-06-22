@@ -5,7 +5,7 @@ import routerList from "./list";
 import Intercept from "./intercept";
 import { getMenus } from "@/common";
 import { reduceMenuList } from "@/utils";
-import { DealMenuItem } from "@/types/menu"
+import { DealMenuItem } from "@/types"
 
 function useRouter() {
   const [list, setList] = useState<DealMenuItem[]>([]);
@@ -55,7 +55,7 @@ function useRouter() {
 const Router = () => {
   const { routerBody } = useRouter();
   console.log(routerBody);
-  
+
   return <CacheSwitch>{routerBody}</CacheSwitch>;
 };
 

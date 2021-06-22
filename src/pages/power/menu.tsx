@@ -4,7 +4,7 @@ import MyIcon from "@/components/icon";
 import { getMenu, delMenu } from "@/api";
 import MenuModal from "@/components/modal/menu";
 import "./index.less";
-import { DealMenuList } from "@/types/menu"
+import { DealMenuList } from "@/types"
 
 type ModalType = "add" | "addChild" | "edit"
 

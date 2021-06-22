@@ -1,3 +1,4 @@
+// 关于菜单State的action
 export type MenuAction = {
   type: string
   key: string
@@ -5,13 +6,13 @@ export type MenuAction = {
   menuItem: OpenedMenu
 }
 
+// 
 export interface OpenedMenu {
   key: string
   path: string
   title: string
-  parentPath?: string
-  children?: OpenedMenu[]
 }
+
 export interface MenuState {
   openedMenu: OpenedMenu[]
   openMenuKey: string[]

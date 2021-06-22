@@ -1,16 +1,16 @@
 import React from "react";
 import { addOpenedMenu, setOpenKey, setSelectKey } from "@/store/menu/action";
-import { connect, DispatchProp } from "react-redux";
+import { connect } from "react-redux";
 import { getCurrentUrl, getMenuParentKey } from "@/utils";
 import Error from "@pages/err";
-import State, { OpenedMenu } from "@/types/store";
+import { OpenedMenu, State, Dispatch } from "@/types";
 
 const mapStateToProps = (state: State) => ({
   openMenus: state.menu.openedMenu,
   userInfo: state.user,
 });
 
-const mapDispatchToProps = (dispatch: DispatchProp["dispatch"]) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   addOpenedMenuFn: (val: OpenedMenu) => dispatch(addOpenedMenu(val)),
   setSelectedKeys: (val: string[]) => dispatch(setSelectKey(val)),
   setOpenKeys: (val: string[]) => dispatch(setOpenKey(val)),

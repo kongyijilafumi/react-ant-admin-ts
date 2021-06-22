@@ -7,11 +7,7 @@ import { filterOpenKey } from "@/store/menu/action";
 import { getCurrentUrl, reduceMenuList } from "@/utils";
 import { message, Breadcrumb } from "antd";
 import { getMenus } from "@/common";
-import { DealMenuItem, DealMenuList } from "@/types/menu"
-import state, { OpenedMenu } from "@/types/store"
-import { Dispatch } from "redux"
-import { History } from "history"
-
+import { State, OpenedMenu, Dispatch, DealMenuItem, DealMenuList, History } from "@/types"
 type Props = {
   openedMenu: OpenedMenu
   filterKey: (key: string) => void
@@ -20,7 +16,7 @@ type Props = {
   children: ReactNode
 }
 
-const mapStateToProps = (state: state) => ({
+const mapStateToProps = (state: State) => ({
   openedMenu: state.menu.openedMenu,
   childKey: state.menu.selectMenuKey,
 });
@@ -67,8 +63,7 @@ function TopMenu({ openedMenu, filterKey, history, childKey }: Props | any) {
         message.error("最后一个选项菜单不可关闭");
       }
       if (nextItem && isCurrent) {
-        let parentPath = nextItem.parentPath || "";
-        history.replace(parentPath + nextItem.path);
+        history.replace(nextItem.path);
       }
     },
     [history, filterKey]

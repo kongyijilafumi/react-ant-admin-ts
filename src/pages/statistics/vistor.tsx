@@ -4,7 +4,7 @@ import { getVisitorList, getVisitorData } from "@/api";
 import { Line as LineEchart } from "@/components/echarts";
 import MyPagination from "@/components/pagination";
 import "./index.less";
-import { VisitData, MapKey } from "@/types/api"
+import { VisitData, MapKey } from "@/types"
 
 const getOpt = () => ({
   xAxis: {

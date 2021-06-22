@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import MyIcon from "@/components/icon";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Link } from "react-router-dom";
 import "./index.less";
-import { OpenedMenu } from "@/types/menu"
+import { OpenedMenu } from "@/types"
 // 重新记录数组顺序
 const reorder = (list: ListType, startIndex: number, endIndex: number) => {
   const result = Array.from(list);

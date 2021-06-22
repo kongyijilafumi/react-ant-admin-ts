@@ -3,7 +3,7 @@ import { Button, Table, Row, Col } from "antd";
 import TypeModal, { Info } from "@/components/modal/type";
 import { getPower } from "@/api";
 import "./index.less";
-import { MapKey, PowerList } from "@/types/api"
+import { MapKey, PowerList } from "@/types"
 function useTypes() {
   const [showModal, setShow] = useState(false);
   const [tableData, setData] = useState<PowerList>([]);

@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { message } from "antd";
-import { PowerApi, LoginApi, ResponseData, MenuInfoApi, MessageList, MessageAPi } from "@/types/api"
+import { PowerApi, LoginApi, ResponseData, MenuInfoApi, MessageList, MessageAPi } from "@/types"
 
 interface MockMenuItem {
   title: string

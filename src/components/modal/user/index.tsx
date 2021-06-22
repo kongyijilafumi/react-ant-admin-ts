@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, message } from "antd";
 import { getPower, addUser, getUser, editUser } from "@/api";
-import { PowerList } from "@/types/api"
+import { PowerList } from "@/types"
+
 const { Option } = Select;
 const unRule = [{ required: true, message: "请填写用户名" }];
 const accountRule = [{ required: true, message: "请填写登录账号" }];

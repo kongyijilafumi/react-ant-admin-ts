@@ -4,8 +4,7 @@ import MyIcon from "@/components/icon/";
 import { connect } from "react-redux";
 import { clearUser } from "@/store/user/action";
 import { clearSessionUser, setKey, saveToken } from "@/utils";
-import { Dispatch } from "redux"
-import State from "@/types/store"
+import { State, Dispatch } from "@/types"
 const { Header } = Layout;
 
 const mapStateToProps = (state: State) => ({

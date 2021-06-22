@@ -6,9 +6,7 @@ import MyIcon from "@/components/icon";
 import { getMenus } from "@/common";
 import { setOpenKey } from "@/store/menu/action";
 import { filterMenuList, stopPropagation } from "@/utils";
-import { Dispatch } from "redux"
-import State from "@/types/store"
-import { DealMenuList } from "@/types/menu"
+import { State, DealMenuList, Dispatch } from "@/types"
 
 interface MenuDomProps {
   openKeys: State["menu"]["openMenuKey"]

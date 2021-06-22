@@ -1,5 +1,5 @@
 import { getSessionUser } from "@/utils";
-import { UserInfo, UserAction } from "@/types/user"
+import { UserInfo, UserAction } from "@/types"
 import * as actionTypes from "./actionTypes";
 const initState: UserInfo = getSessionUser()
 

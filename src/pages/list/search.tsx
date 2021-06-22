@@ -13,7 +13,7 @@ import {
 import MyPagination, { PageInfo } from "@/components/pagination";
 import { getMsg, addMsg } from "@/api";
 import "./index.less";
-import { MessageList, MapKey } from "@/types/api"
+import { MessageList, MapKey } from "@/types"
 
 export default function SearchPage() {
   const [form] = Form.useForm();

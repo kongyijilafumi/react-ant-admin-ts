@@ -1,7 +1,6 @@
 import ajax from "@/common/ajax";
 import mock from "../mock/index";
-import { DealMenuList } from "@/types/menu"
-import { MessageAPi, ResponseData, LoginApi, PowerApi, MenuInfoApi, UserListApi, ResponseUserInfo, VisitorApi, VisitorListApi } from "@/types/api"
+import { MessageAPi, ResponseData, LoginApi, PowerApi, MenuInfoApi, UserListApi, ResponseUserInfo, VisitorApi, VisitorListApi, DealMenuList } from "@/types"
 
 const request = process.env.REACT_APP_MOCK ? mock : ajax;
 

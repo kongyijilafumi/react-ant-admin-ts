@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Form, Input, Button, Checkbox, message } from "antd";
 import { connect } from "react-redux";
 import MyIcon from "@/components/icon";
 import { saveUser, getLocalUser, saveToken } from "@/utils";
 import { setUserInfoAction } from "@/store/user/action";
 import { login } from "@/api";
-import { Dispatch } from "redux"
-import { UserInfo } from "@/types/user"
+import { UserInfo, Dispatch } from "@/types"
 import "./index.less";
 
 interface LoginProps {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Spin } from "antd";
 import Layout from "@/layout";
@@ -6,9 +6,8 @@ import Login from "@pages/login";
 import { connect } from "react-redux";
 import { RouterBasename } from "@/common";
 import { setUserInfoAction } from "@/store/user/action";
-import State from "@/types/store"
 import { getLocalUser } from "@/utils";
-import { Dispatch } from "redux"
+import { State, Dispatch } from "@/types"
 
 interface AppRouterProps {
   userInfo: State["user"]

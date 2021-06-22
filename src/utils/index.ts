@@ -1,6 +1,5 @@
 import { getMenus, RouterBasename, } from "@/common";
-import { DealMenuItem, DealMenuList } from "@/types/menu"
-import { UserInfo } from "@/types/user";
+import { DealMenuItem, DealMenuList, UserInfo } from "@/types"
 
 interface MenuOpenData {
   openKeys: string[]

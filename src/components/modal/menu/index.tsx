@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import MyIcon from "@/components/icon";
 import { Modal, Form, Input, Select, message, Radio, InputNumber } from "antd";
 import { getPower, addMenu, getMenuInfo, editMenu } from "@/api";
-import { DealMenuList, MenuItem } from "@/types/menu"
-import { PowerList } from "@/types/api"
+import { DealMenuList, MenuItem, PowerList } from "@/types"
 import "./index.less";
 interface IconItem {
   icon_id: string,
