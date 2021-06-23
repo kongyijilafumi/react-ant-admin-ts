@@ -52,9 +52,11 @@ nodejs 后台 web 服务:[react-ant-admin-server](https://gitee.com/kong_yiji_an
 
 1. 下载本项目到本地
 
-```
-D:> git clone https://github.com/kongyijilafumi/react-ant-admin.git //github地址 慢
-D:> git clone https://gitee.com/kong_yiji_and_lavmi/react-ant-admin.git //码云地址 快
+```bash
+#github地址 慢
+D:> git clone https://github.com/kongyijilafumi/react-ant-admin-ts.git 
+#码云地址 快
+D:> git clone https://gitee.com/kong_yiji_and_lavmi/react-ant-admin-ts.git 
 
 ```
 
