@@ -54,8 +54,6 @@ function useRouter() {
 
 const Router = () => {
   const { routerBody } = useRouter();
-  console.log(routerBody);
-
   return <CacheSwitch>{routerBody}</CacheSwitch>;
 };
 
