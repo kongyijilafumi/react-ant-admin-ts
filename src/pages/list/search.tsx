@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Form,
-  Table,
   Input,
   Modal,
   Button,
@@ -12,6 +11,7 @@ import {
 } from "antd";
 import MyPagination, { PageInfo } from "@/components/pagination";
 import { getMsg, addMsg } from "@/api";
+import MyTable from "@/components/table";
 import "./index.less";
 import { MessageList, MapKey } from "@/types"
 
@@ -107,7 +107,7 @@ export default function SearchPage() {
             </Button>
           </Form>
         </div>
-        <Table
+        <MyTable
           title={() => tableTop}
           dataSource={tableData}
           columns={tableCol}

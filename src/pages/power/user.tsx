@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Button, Table, Row, Col } from "antd";
+import { Button, Row, Col } from "antd";
 import MyPagination from "@/components/pagination";
 import UserModal, { UserID } from "@/components/modal/user";
 import { getUserList } from "@/api";
 import "./index.less";
-
+import MyTable from "@/components/table";
 import { MapKey, ResponseUserInfo } from "@/types"
 
 export default function User() {
@@ -80,7 +80,7 @@ export default function User() {
 
   return (
     <div className="user-container">
-      <Table
+      <MyTable
         title={renderTitle}
         dataSource={tableData}
         rowKey="user_id"

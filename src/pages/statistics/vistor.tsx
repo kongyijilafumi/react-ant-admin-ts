@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Row, Col, Table, Card, Progress } from "antd";
+import { Row, Col, Card, Progress } from "antd";
 import { getVisitorList, getVisitorData } from "@/api";
 import { Line as LineEchart } from "@/components/echarts";
 import MyPagination from "@/components/pagination";
+import MyTable from "@/components/table";
 import "./index.less";
 import { VisitData, MapKey } from "@/types"
 
@@ -182,7 +183,7 @@ export default function Vistor() {
           </Card>
         </Col>
       </Row>
-      <Table
+      <MyTable
         title={getTableTitle}
         dataSource={tableData}
         columns={tableCol}
