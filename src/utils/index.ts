@@ -1,5 +1,5 @@
 import { getMenus, RouterBasename, } from "@/common";
-import { DealMenuItem, DealMenuList, UserInfo } from "@/types"
+import { DealMenuItem, DealMenuList, UserInfo, LayoutMode } from "@/types"
 
 interface MenuOpenData {
   openKeys: string[]
@@ -148,6 +148,12 @@ function stopPropagation(e: MouseEvent) {
   e.stopPropagation();
 }
 
+function getLayoutMode(): LayoutMode | null {
+  return getKey(true, "layout-mode");
+}
+function setLayoutMode(data: LayoutMode) {
+  setKey(true, "layout-mode", data);
+}
 export {
   getDefaultMenu,
   getSessionUser,
@@ -166,4 +172,6 @@ export {
   getKey,
   setKey,
   stopPropagation,
+  getLayoutMode,
+  setLayoutMode
 };

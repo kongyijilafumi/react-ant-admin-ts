@@ -39,9 +39,10 @@ const RightMenu = ({ logout }: {
 
 const getPopupContainer = (HTMLElement: HTMLElement) => HTMLElement;
 
-const HeaderDom = ({ userInfo, userOut }: {
+const HeaderDom = ({ userInfo, userOut, children }: {
   userInfo: State["user"];
   userOut: (u: State["user"]) => void;
+  children: JSX.Element | null
 }) => {
   return (
     <Header className="header">
@@ -49,6 +50,7 @@ const HeaderDom = ({ userInfo, userOut }: {
         <img src={logo} alt="logo"></img>
         <span>react-ant-admin</span>
       </div>
+      {children}
       <div className="right">
         <Dropdown
           placement="bottomCenter"

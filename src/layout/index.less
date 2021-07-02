@@ -7,12 +7,23 @@
   }
 }
 
+.fl {
+  float: left;
+}
+
 .my-layout-body {
   min-height: 100vh;
 
   .ant-menu {
     &.layout-silder-menu {
       border-color: @border-color-split ;
+
+
+
+      &.toheader {
+        height  : 64px;
+        overflow: unset;
+      }
     }
 
     .ant-menu-submenu .ant-menu-submenu-title .anticon {
