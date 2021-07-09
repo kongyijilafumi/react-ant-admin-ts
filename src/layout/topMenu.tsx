@@ -27,8 +27,8 @@ function getParent(list: DealMenuList, parentKey: string): DealMenuItem | undefi
   return list.find((i) => i.key === parentKey);
 }
 async function getBreadArray(ckey: string) {
-  let list = await getMenus();
-  list = reduceMenuList(list);
+  let res = await getMenus();
+  let list = reduceMenuList(res.data);
   let arr = [];
   let currentInfo = list.find((i) => i.key === ckey);
   if (!currentInfo) return [];

@@ -1,3 +1,4 @@
+import { MapKey, PowerList } from "./api"
 // 关于菜单State的action
 export type MenuAction = {
   type: string
@@ -46,3 +47,9 @@ export type DealMenuItem = {
   children?: DealMenuItem[]
 } & Omit<MenuItem, "type" | "children">
 export type DealMenuList = DealMenuItem[]
+
+export interface MenuResponse {
+  data: DealMenuList
+  mapKey: MapKey
+  type: PowerList
+}

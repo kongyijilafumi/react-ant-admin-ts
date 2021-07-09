@@ -72,7 +72,7 @@ const SiderMenu = ({ openKeys, selectedKeys, setOpenKeys, userInfo, layout }: Si
   useEffect(() => {
     getMenus().then((res) => {
       if (userInfo) {
-        let list = filterMenuList(res, userInfo.type);
+        let list = filterMenuList(res.data, userInfo.type);
         setMenu(list);
       }
     });

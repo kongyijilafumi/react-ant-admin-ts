@@ -15,6 +15,38 @@ function useMenu() {
   const [selectInfo, setSelectInfo] = useState<{ key: string, isParent: boolean } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<ModalType>("add");
+
+
+  const menuAction = {
+    title: "操作",
+    dataIndex: "action",
+    align: "center",
+    render: (text: any, record: any) => {
+      return (
+        <Row>
+          <Button type="link" onClick={() => openModal("edit", record)}>
+            编辑
+          </Button>
+          {!record.parentKey && (
+            <Button type="link" onClick={() => openModal("addChild", record)}>
+              添加子菜单
+            </Button>
+          )}
+          <Popconfirm
+            onConfirm={() => deleteMenu(record)}
+            okText="确认"
+            title="删除选中菜单会一同删除其下所有子菜单，确认删除？"
+            cancelText="取消"
+          >
+            <Button type="link" danger>
+              删除
+            </Button>
+          </Popconfirm>
+        </Row>
+      );
+    },
+  };
+
   useEffect(() => {
     getMenuList();
   }, []);

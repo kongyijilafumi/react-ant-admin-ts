@@ -1,5 +1,5 @@
 import { getMenus, RouterBasename, } from "@/common";
-import { DealMenuItem, DealMenuList, UserInfo, LayoutMode } from "@/types"
+import { DealMenuItem, DealMenuList, UserInfo, LayoutMode, MenuResponse } from "@/types"
 
 interface MenuOpenData {
   openKeys: string[]
@@ -13,7 +13,8 @@ async function getDefaultMenu(): Promise<MenuOpenData> {
   let openKeys: string[] = [],
     selectKey: string[] = [],
     openedMenu: DealMenuItem[] = [];
-  const menuList = await getMenus();
+  const res = await getMenus();
+  const menuList = res.data
   menuList.some((list) => {
     const child = list.children;
     if (child && child.length) {
@@ -67,7 +68,8 @@ function getCurrentUrl() {
 
 async function getMenuParentKey(key: string): Promise<string | undefined> {
   let parentKey;
-  const menuList = await getMenus();
+  const res = await getMenus();
+  const menuList = res.data
   menuList.some((menu) => {
     if (menu.key === key) {
       parentKey = key;
@@ -109,17 +111,16 @@ function reduceMenuList(list: DealMenuList): DealMenuList {
   }, ([] as Array<DealMenuItem>));
 }
 
-function getLocalMenu(): DealMenuList {
+function getLocalMenu(): MenuResponse {
   return getKey(false, "menu");
 }
 
-function saveLocalMenu(list: DealMenuList) {
+function saveLocalMenu(list: MenuResponse) {
   setKey(false, "menu", list);
 }
 
 function saveToken(token: Token) {
-  let str = token || "";
-  localStorage.setItem("token", str);
+  setKey(true, "token", token)
 }
 
 function getToken(): Token {

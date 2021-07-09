@@ -13,6 +13,7 @@ export type MapKey = {
   key: string
   title: string
   width?: number
+  [keyname: string]: any
 }[]
 export interface ResponseData {
   status: number
