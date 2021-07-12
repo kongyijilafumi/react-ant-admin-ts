@@ -15,7 +15,7 @@ function getMenus(): Promise<MenuResponse> {
         res(result);
       })
       .catch((err) => {
-        res({ data: <DealMenuList>[], mapKey: [], type: [] });
+        res({ data: [] as DealMenuList, mapKey: [], type: [] });
       });
   });
 }

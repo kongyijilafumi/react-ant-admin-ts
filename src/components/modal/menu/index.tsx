@@ -3,6 +3,7 @@ import MyIcon from "@/components/icon";
 import { Modal, Form, Input, Select, message, Radio, InputNumber } from "antd";
 import { getPower, addMenu, getMenuInfo, editMenu } from "@/api";
 import { DealMenuList, MenuItem, PowerList } from "@/types"
+import { ModalType, SelectInfo } from "@/pages/power/menu"
 import "./index.less";
 interface IconItem {
   icon_id: string,
@@ -13,11 +14,8 @@ interface IconItem {
 }
 
 interface AddMenuProps {
-  info: {
-    key: string
-    isParent: boolean
-  } | null
-  modalType: "add" | "addChild" | "edit"
+  info: SelectInfo
+  modalType: ModalType
   isShow: boolean
   setShow: (s: boolean) => void
   updateMenu: () => void
@@ -145,7 +143,7 @@ export default function AddMenu({
               placeholder="父级菜单"
               disabled={
                 modalType === "addChild" ||
-                (modalType === "edit" && info.isParent)
+                Boolean(modalType === "edit" && info.isParent)
               }
             >
               {menus.map((menu) => (

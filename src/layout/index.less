@@ -18,10 +18,9 @@
     &.layout-silder-menu {
       border-color: @border-color-split ;
 
-
-
-      &.toheader {
+      &.col {
         height  : 64px;
+        padding-bottom: 0;
         overflow: unset;
       }
     }
@@ -64,8 +63,9 @@
   }
 
   .layout-silder-menu {
-    height    : calc(100vh - 64px);
-    overflow-y: auto;
+    height        : calc(100vh - 64px);
+    padding-bottom: 32px;
+    overflow-y    : auto;
   }
 
   .ant-affix .layout-silder-menu {
@@ -80,6 +80,7 @@
       width       : 100%;
       background  : inherit;
       border-right: 1px solid @border-color-split;
+      background-color: @body-background;
     }
 
     .ant-btn {

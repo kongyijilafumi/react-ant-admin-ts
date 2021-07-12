@@ -2,28 +2,48 @@ import { useEffect, useState } from "react";
 import {
   Table,
   Row,
-  Spin,
   Drawer,
-  Slider,
   Radio,
   Tooltip,
+  InputNumber,
   Button,
   message,
+  notification,
 } from "antd";
+import {
+  SortableContainer,
+  SortableElement,
+  SortableHandle,
+} from "react-sortable-hoc";
 import MyIcon from "../icon";
+import arrayMove from "array-move";
+import { getKey, setKey } from "@/utils";
 import "./index.less";
 import { MyTableProps, Columns, renderArugs, Column } from "./types"
+
+const DragHandle = SortableHandle(() => (
+  <MyIcon type="icon_mirrorlightctrl" className="drag-sort" />
+));
+const SortableItem = SortableElement((props: any) => <tr {...props} />);
+const SortableBody = SortableContainer((props: any) => <tbody  {...props} />);
+
 const setColTitle: Columns = [
+  {
+    title: "列排序",
+    dataIndex: "sort",
+    className: "drag-visible",
+    render: () => <DragHandle />,
+  },
   {
     title: "列名",
     dataIndex: "title",
+    className: "drag-visible",
     align: "center",
   },
   {
     title: "宽度",
     dataIndex: "width",
-    width: 200,
-    type: "slider",
+    type: "inputNumber",
   },
   {
     title: "固定",
@@ -59,30 +79,61 @@ const setColTitle: Columns = [
     ],
   },
   {
-    title: "位置调整",
+    title: "隐藏",
+    dataIndex: "hidden",
+    type: "switch",
     align: "center",
-    dataIndex: "position",
+    range: [
+      { v: "hidden", t: "隐藏" },
+      { v: "auto", t: "显示" },
+    ],
   },
 ];
 
-const defaultCol: Column = {
+const defaultCol: Omit<Column, "dataIndex"> = {
   width: 80,
   fixed: false,
   ellipsis: false,
   align: "left",
+  hidden: "auto",
 };
 
-function UseTable(columns: Columns) {
+
+function UseTable(columns: Columns, saveKey: MyTableProps["saveKey"]) {
   const [showDrawer, setShowDrawer] = useState(false);
   const [col, setCol] = useState<Columns>([]);
   const [tbTitle, setTitle] = useState<Columns>([]);
+  const DraggableContainer = (props: any) => (
+    <SortableBody
+      useDragHandle
+      disableAutoscroll
+      helperClass="row-dragging"
+      onSortEnd={onSortEnd}
+      {...props}
+    />
+  );
+  const DraggableBodyRow = ({ className, style, ...restProps }: any) => {
+    const index = col.findIndex((x) => x.index === restProps["data-row-key"]);
+    return <SortableItem index={index} {...restProps} />;
+  };
   useEffect(() => {
-    if (columns && columns.length !== col.length) {
-      const newCol = columns.map((c) => ({ ...defaultCol, ...c }));
+    const data: Columns = getKey(true, saveKey || '');
+    if (saveKey && data && columns && columns.length === data.length) {
+      const merge = data.map((item) => ({
+        ...columns.find((i) => i.dataIndex === item.dataIndex),
+        ...item,
+      }));
+      setCol(merge);
+    } else if (!data && columns && columns.length !== col.length) {
+      const newCol = columns.map((c, index) => ({
+        ...defaultCol,
+        ...c,
+        index,
+      }));
       setCol(newCol);
     }
-    // eslint-disable-next-line
-  }, [columns]);
+    // eslint-disable-next-line 
+  }, [saveKey, columns]);
 
   useEffect(() => {
     if (col.length) {
@@ -90,11 +141,8 @@ function UseTable(columns: Columns) {
         if (c.type === "switch") {
           c.render = (...args: renderArugs) => switchRender(c, ...args);
         }
-        if (c.type === "slider") {
-          c.render = (...args: renderArugs) => sliderRender(c.dataIndex ? c.dataIndex : '', ...args);
-        }
-        if (c.dataIndex === "position") {
-          c.render = arrowRender;
+        if (c.type === "inputNumber") {
+          c.render = (...args) => inuputRender(c.dataIndex ? c.dataIndex : '', ...args);
         }
         return c;
       });
@@ -123,7 +171,7 @@ function UseTable(columns: Columns) {
       </Radio.Group>
     );
   }
-  function switchChange(key: string, val: boolean, current: Column) {
+  function switchChange(key: string, val: any, current: Column) {
     const dataIndex = current.dataIndex;
     let newCol = col.map((item) => {
       if (item.dataIndex === dataIndex && key) {
@@ -134,84 +182,94 @@ function UseTable(columns: Columns) {
     setCol(newCol);
   }
 
-  function sliderRender(dataIndex: string, text: "auto" | number, col: Column) {
+  function inuputRender(dataIndex: string, text: number, col: Column) {
     return (
-      <>
-        <Slider
+      <Tooltip title="失去焦点触发" arrowPointAtCenter>
+        <InputNumber
           min={0}
           max={800}
-          onChange={(v) => sliderChange(dataIndex, v, col)}
-          value={text === "auto" ? 0 : text}
+          onStep={(v) => switchChange(dataIndex, v, col)}
+          onBlur={(v) => switchChange(dataIndex, Number(v.target.value), col)}
+          value={text}
         />
-      </>
+      </Tooltip>
     );
   }
-  function sliderChange(key: string, val: number, current: Column) {
-    const dataIndex = current.dataIndex;
-    let newCol = col.map((item) => {
-      if (item.dataIndex === dataIndex) {
-        item[key] = val;
-      }
-      return item;
-    });
-    setCol(newCol);
-  }
-
-  function arrowRender(text: any, current: Column) {
-    return (
-      <>
-        <Row justify="center" className="mt10">
-          <Tooltip title="上移">
-            <Button type="primary" onClick={() => arrowChange(current, "up")}>
-              <MyIcon type="icon_upward" />
-            </Button>
-          </Tooltip>
-        </Row>
-        <Row justify="center">
-          <Tooltip title="下移">
-            <Button type="primary" onClick={() => arrowChange(current, "down")}>
-              <MyIcon type="icon_down" />
-            </Button>
-          </Tooltip>
-        </Row>
-      </>
-    );
-  }
-
-  function arrowChange(current: Column, direction: string) {
-    const findIndex = col.findIndex((c) => c === current);
-    if (
-      (findIndex === 0 && direction === "up") ||
-      (findIndex === col.length - 1 && direction === "down")
-    ) {
-      return message.error("当前列位置无法移动");
-    }
-    const start = direction === "up" ? findIndex - 1 : findIndex;
-    const end = direction === "up" ? findIndex + 1 : findIndex + 2;
-    const next = col[direction === "up" ? findIndex - 1 : findIndex + 1];
-    const insert = direction === "up" ? [current, next] : [next, current];
-    const newCol = [...col.slice(0, start), ...insert, ...col.slice(end)];
-    setCol(newCol);
-  }
-
   function hiddin() {
     setShowDrawer(false);
   }
   function show() {
     setShowDrawer(true);
   }
-  return { col, showDrawer, show, hiddin, tbTitle };
+  function onSortEnd({ oldIndex, newIndex }: {
+    oldIndex: number
+    newIndex: number
+  }) {
+    if (oldIndex !== newIndex) {
+      const arr: Array<Columns> = []
+      const newData = arrayMove<Columns>(arr.concat(col), oldIndex, newIndex).filter(
+        (el) => !!el
+      );
+      setCol(newData);
+    }
+  }
+  function saveTbSet() {
+    if (!saveKey) {
+      return notification.error({
+        type: "error",
+        description: "你未定义表格的savaKey属性，请定义后保存",
+        message: "保存失败",
+      });
+    }
+    setKey(true, saveKey, col);
+    message.success("保存设置成功!");
+  }
+  return {
+    col,
+    showDrawer,
+    show,
+    hiddin,
+    tbTitle,
+    DraggableContainer,
+    DraggableBodyRow,
+    saveTbSet,
+  };
 }
 
-function MyTable({ columns, dataSource, loading = false, children, ...Props }: MyTableProps) {
-  const { showDrawer, show, hiddin, col, tbTitle } = UseTable(columns);
+function MyTable({
+  columns,
+  dataSource,
+  className,
+  children,
+  saveKey,
+  ...Props
+}: MyTableProps) {
+  const {
+    showDrawer,
+    show,
+    hiddin,
+    col,
+    tbTitle,
+    DraggableContainer,
+    DraggableBodyRow,
+    saveTbSet,
+  } = UseTable(columns, saveKey);
 
   return (
-    <Spin spinning={loading}>
+    <div className="react-ant-table">
       <Row className="set" justify="end">
-        <MyIcon type="icon_set" onClick={show} />
+        <MyIcon type="icon_edit" onClick={show} />
       </Row>
-      <Table columns={col} dataSource={dataSource} {...Props}>
+      <Table
+        columns={col.filter((i) => i.hidden !== "hidden")}
+        dataSource={dataSource}
+        className={
+          className
+            ? `table-show-container ${className}`
+            : "table-show-container"
+        }
+        {...Props}
+      >
         {children}
       </Table>
       <Drawer
@@ -222,9 +280,25 @@ function MyTable({ columns, dataSource, loading = false, children, ...Props }: M
         visible={showDrawer}
         title="表格显示设置"
       >
-        <Table columns={tbTitle} dataSource={col} pagination={false} />
+        <Table
+          columns={tbTitle}
+          dataSource={col}
+          rowKey="index"
+          components={{
+            body: {
+              wrapper: DraggableContainer,
+              row: DraggableBodyRow,
+            },
+          }}
+          pagination={false}
+        />
+        <Row justify="center" className="mt20">
+          <Button type="primary" onClick={saveTbSet}>
+            保存此表格设置，下次打开默认启用
+          </Button>
+        </Row>
       </Drawer>
-    </Spin>
+    </div>
   );
 }
 export default MyTable;

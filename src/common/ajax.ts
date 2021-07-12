@@ -1,6 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { message, notification } from "antd";
-import { getToken } from "@/utils";
+import { getToken, clearLocalDatas } from "@/utils";
 // 请求地址
 const BASE_URL: string =
   process.env.NODE_ENV === "development"
@@ -82,16 +82,15 @@ instance.interceptors.response.use(
         description: errorText,
       });
       if (response.status === 401 || response.status === 403) {
-        sessionStorage.clear();
-        localStorage.clear();
+        clearLocalDatas(["menu", "token", "userInfo"]);
         setTimeout(() => {
           window.location.reload();
         }, 1000);
       }
     } else if (!response) {
       notification.error({
-        description: "您的网络发生异常，无法连接服务器",
-        message: "网络异常",
+        description: "客户端异常或网络问题，请清除缓存！",
+        message: "状态异常",
       });
     }
     // 对响应错误做点什么

@@ -124,25 +124,21 @@ function saveToken(token: Token) {
 }
 
 function getToken(): Token {
-  return localStorage.getItem("token");
+  return getKey(true, "token")
 }
 
 function getKey(isLocal: boolean, key: string) {
-  let storeage = getStorage(isLocal);
-  let data = storeage.getItem(key) || "null";
-  return JSON.parse(data);
+  return JSON.parse(getStorage(isLocal).getItem(key) || "null");
 }
 function getStorage(isLocal: boolean) {
   return isLocal ? window.localStorage : window.sessionStorage;
 }
 function setKey(isLocal: boolean, key: string, data: any) {
-  let storeage = getStorage(isLocal);
-  storeage.setItem(key, JSON.stringify(data || null));
+  getStorage(isLocal).setItem(key, JSON.stringify(data || null));
 }
 
 function rmKey(isLocal: boolean, key: string) {
-  let storeage = getStorage(isLocal);
-  storeage.removeItem(key);
+  getStorage(isLocal).removeItem(key);
 }
 
 function stopPropagation(e: MouseEvent) {
@@ -155,6 +151,13 @@ function getLayoutMode(): LayoutMode | null {
 function setLayoutMode(data: LayoutMode) {
   setKey(true, "layout-mode", data);
 }
+function clearLocalDatas(keys: string[]) {
+  keys.forEach((key) => {
+    rmKey(true, key);
+    rmKey(false, key);
+  });
+}
+
 export {
   getDefaultMenu,
   getSessionUser,
@@ -174,5 +177,6 @@ export {
   setKey,
   stopPropagation,
   getLayoutMode,
-  setLayoutMode
+  setLayoutMode,
+  clearLocalDatas
 };

@@ -1,25 +1,31 @@
 import { useEffect, useState } from "react";
-import { Tree, Row, Col, Button, message, Popconfirm } from "antd";
-import MyIcon from "@/components/icon";
+import { Row, Button, message, Popconfirm, Tag } from "antd";
 import { getMenu, delMenu } from "@/api";
 import MenuModal from "@/components/modal/menu";
+import MyTable from "@/components/table";
+import MyIcon from "@/components/icon";
+import { DealMenuList, MapKey } from "@/types"
 import "./index.less";
-import { DealMenuList } from "@/types"
 
-type ModalType = "add" | "addChild" | "edit"
 
-const { TreeNode } = Tree;
+export type ModalType = "add" | "addChild" | "edit"
+export type SelectInfo = {
+  key?: string
+  isParent?: Boolean
+}
 
 function useMenu() {
   const [menus, setMenu] = useState<DealMenuList>([]);
-  const [selectInfo, setSelectInfo] = useState<{ key: string, isParent: boolean } | null>(null);
+  const [tabCol, setCol] = useState<MapKey>([]);
+  const [selectInfo, setSelectInfo] = useState<SelectInfo>({});
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState<ModalType>("add");
+  const [modalType, setModalType] = useState<ModalType>('add');
 
 
   const menuAction = {
     title: "操作",
     dataIndex: "action",
+    key: "action",
     align: "center",
     render: (text: any, record: any) => {
       return (
@@ -46,41 +52,51 @@ function useMenu() {
       );
     },
   };
+  const getMenuList = () => {
+    getMenu().then((res) => {
+      if (res) {
+        const types = res.type;
+        res.mapKey.push(menuAction);
+        res.mapKey.forEach((item) => {
+          if (item.dataIndex === "icon") {
+            item.render = (text: string | null) =>
+              text ? <MyIcon className="preview" type={text} /> : "暂未设置";
+          } else if (item.dataIndex === "keepAlive") {
+            item.render = (text: string) => (text === "true" ? "保持" : "关闭销毁");
+          } else if (item.dataIndex === "type") {
+            item.render = (text: string[]) => {
+              return text.map((type) => {
+                const find = types.find((i) => i.type === type);
+                return find ? (
+                  <Tag color="#2db7f5" className="type-tag" key={type}>
+                    {find.name}
+                  </Tag>
+                ) : (
+                  type
+                );
+              });
+            };
+          }
+        });
+        setCol(res.mapKey);
+        setMenu(res.data);
+      }
+    });
+  };
 
   useEffect(() => {
     getMenuList();
+    // eslint-disable-next-line
   }, []);
 
-  const onSelect = (s: any, info: any) => {
-    let { key, pos } = info.node;
-    if (info.selected) {
-      setSelectInfo({ key, isParent: Boolean(pos.split("-").length === 2) });
-      return;
-    }
-    setSelectInfo(null);
-  };
-
-  const getMenuList = () => {
-    getMenu().then(setMenu);
-  };
-
-  const addMenu = () => {
-    openModal("add");
-  };
-  const addChildMenu = () => {
-    openModal("addChild");
-  };
-
-  const openModal = (type: ModalType) => {
+  const openModal = (type: ModalType, { key, isParent }: SelectInfo) => {
+    setSelectInfo({ key, isParent: Boolean(isParent) });
     setModalType(type);
     setShowModal(true);
   };
 
-  const setMenuInfo = () => {
-    openModal("edit");
-  };
-  const deleteMenu = () => {
-    delMenu(selectInfo).then((res) => {
+  const deleteMenu = (info: any) => {
+    delMenu(info).then((res) => {
       const { msg, status } = res;
       if (status === 0) {
         message.success(msg);
@@ -88,94 +104,38 @@ function useMenu() {
       }
     });
   };
+  const addMenu = () => {
+    openModal("add", {});
+  };
   return {
-    addChildMenu,
     selectInfo,
-    addMenu,
-    setMenuInfo,
-    deleteMenu,
-    onSelect,
     menus,
     showModal,
     modalType,
+    tabCol,
     setShowModal,
     getMenuList,
+    addMenu,
   };
 }
 
 export default function Menu() {
   const {
-    addChildMenu,
     selectInfo,
-    addMenu,
-    setMenuInfo,
-    deleteMenu,
-    onSelect,
     menus,
     showModal,
     modalType,
+    tabCol,
     setShowModal,
     getMenuList,
+    addMenu,
   } = useMenu();
   return (
     <div className="powermenu-container">
-      <div className="top-form">
-        <Button
-          type="primary"
-          onClick={addChildMenu}
-          disabled={!selectInfo || !selectInfo.isParent}
-        >
-          新增子菜单
-        </Button>
-        <Button type="primary" onClick={addMenu}>
-          新增菜单
-        </Button>
-        <Button
-          type="dashed"
-          onClick={setMenuInfo}
-          danger
-          disabled={!selectInfo}
-        >
-          修改菜单
-        </Button>
-        <Popconfirm
-          disabled={!selectInfo}
-          onConfirm={deleteMenu}
-          okText="确认"
-          title="删除选中菜单会一同删除其下所有子菜单，确认删除？"
-          cancelText="取消"
-        >
-          <Button danger disabled={!selectInfo}>
-            删除菜单
-          </Button>
-        </Popconfirm>
-      </div>
-      <Row className="tree-data">
-        <Col span={8}>
-          {(menus.length && (
-            <Tree blockNode showIcon onSelect={onSelect}>
-              {menus.map((item) => (
-                <TreeNode
-                  key={item.key}
-                  title={item.title}
-                  icon={item.icon && <MyIcon type={item.icon} />}
-                  children={
-                    item.children &&
-                    item.children.map((child) => (
-                      <TreeNode
-                        key={child.key}
-                        title={child.title}
-                        icon={child.icon && <MyIcon type={child.icon} />}
-                      />
-                    ))
-                  }
-                />
-              ))}
-            </Tree>
-          )) ||
-            null}
-        </Col>
-      </Row>
+      <Button type="primary" onClick={addMenu}>
+        新增菜单
+      </Button>
+      <MyTable dataSource={menus} columns={tabCol} saveKey="menuTbale" />
       <MenuModal
         menus={menus}
         isShow={showModal}
