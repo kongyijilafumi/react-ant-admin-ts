@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { message } from "antd";
-import { PowerApi, LoginApi, ResponseData, MenuInfoApi, MessageList, MessageAPi } from "@/types"
+import { PowerApi, LoginApi, ResponseData, MenuInfoApi, MessageList, MessageAPi, MenuResponse } from "@/types"
 
 interface MockMenuItem {
   title: string
@@ -16,7 +16,7 @@ interface MockMenuItem {
 }
 
 type MockDataType = {
-  "/getmenu": MockMenuItem[]
+  "/getmenu": MenuResponse
   "/getpower": PowerApi
   "/login": LoginApi
   "/addmenu": ResponseData
@@ -26,7 +26,7 @@ type MockDataType = {
   "/getmenuinfo": ResponseData & { data: MockMenuItem | null }
   "/editmenuinfo": ResponseData
   "/getvisitordata": ResponseData
-  [key: string]: ResponseData | MockMenuItem[] | PowerApi | LoginApi | MenuInfoApi
+  [key: string]: ResponseData | MockMenuItem[] | PowerApi | LoginApi | MenuInfoApi | MenuResponse
 }
 
 let menu: MockMenuItem[] = [
@@ -275,9 +275,20 @@ const msg: MessageAPi = {
   msg: "",
 };
 const delMenu = { msg: "操作成功", status: 0 };
-
+const MenuMapKey = [
+  { title: "菜单名称", dataIndex: "title", key: "title" },
+  { title: "菜单路由", dataIndex: "path", key: "path" },
+  { title: "菜单key", dataIndex: "key", key: "key" }, { title: "菜单父级key", dataIndex: "parentKey", key: "parentKey" }, { title: "菜单图标", dataIndex: "icon", key: "icon" }, { title: "菜单权限", dataIndex: "type", key: "type" }, { title: "页面关闭保持状态", dataIndex: "keepAlive", key: "keepAlive" }, { title: "菜单排序(越小越靠前)", dataIndex: "order", key: "order" }
+]
 const MockData: MockDataType = {
-  "/getmenu": menu,
+  "/getmenu": {
+    data: formatMenu(menu),
+    mapKey: MenuMapKey,
+    type: [
+      { type: "0", name: "超级管理员" },
+      { type: "1", name: "普通用户" },
+    ]
+  },
   "/getpower": power,
   "/login": userInfo,
   "/addmenu": addMenu,
@@ -293,7 +304,7 @@ function get(url: UrlType) {
   return new Promise((res) => {
     setTimeout(() => {
       if (url === "/getmenu") {
-        return res(formatMenu(MockData[url]));
+        return res(MockData[url]);
       } else {
         let resData = MockData[url]
         res(resData || { status: 1, msg: "暂无" });
@@ -374,7 +385,7 @@ function post(url: UrlType, data: PostData) {
   }).then((res: any) => (res.status === 0 ? res : message.error("接口暂未配置")));
 }
 
-function formatMenu(list: MockMenuItem[]): MockMenuItem[] | [] {
+function formatMenu(list: MockMenuItem[]): MenuResponse["data"] {
   list.sort((a: MockMenuItem, b: MockMenuItem) => a.order - b.order);
   let data = list.map((i) => ({ ...i }));
   if (Array.isArray(list)) {
@@ -399,10 +410,12 @@ function formatMenu(list: MockMenuItem[]): MockMenuItem[] | [] {
       }
       find.children = [item];
     });
-    return praentList;
+    return praentList as unknown as MenuResponse["data"];
   }
   return [];
 }
+
+
 const mock = { get, post };
 
 export default mock;

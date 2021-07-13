@@ -32,12 +32,13 @@ const mapStateToProps = (state: State) => ({
   userInfo: state.user,
   layout: state.layout
 });
-const InitMenuList: DealMenuList = []
 
 const FlexBox = ({ children }: { children: JSX.Element }) => {
-  return <Col sm={6} md={10} lg={15} className="fl">
-    {children}
-  </Col>
+  return (
+    <Col sm={6} md={10} lg={15} className="fl">
+      {children}
+    </Col>
+  );
 }
 const SliderContent = ({ children }: { children: JSX.Element }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -64,17 +65,19 @@ const SliderContent = ({ children }: { children: JSX.Element }) => {
     </Affix>
   );
 };
-
-const SiderMenu = ({ openKeys, selectedKeys, setOpenKeys, userInfo, layout }: SiderMenuProps) => {
-
-  const [menuList, setMenu] = useState(InitMenuList);
+const SiderMenu = ({
+  openKeys,
+  selectedKeys,
+  setOpenKeys,
+  userInfo,
+  layout,
+}: SiderMenuProps) => {
+  const [menuList, setMenu] = useState<DealMenuList>([]);
   // 设置菜单
   useEffect(() => {
     getMenus().then((res) => {
-      if (userInfo) {
-        let list = filterMenuList(res.data, userInfo.type);
-        setMenu(list);
-      }
+      let list = filterMenuList(res.data, userInfo ? userInfo.type : "");
+      setMenu(list);
     });
     // eslint-disable-next-line
   }, []);
@@ -103,7 +106,7 @@ const SiderMenu = ({ openKeys, selectedKeys, setOpenKeys, userInfo, layout }: Si
           {item.children.map((child) => {
             return (
               <Menu.Item key={child.key} icon={<MyIcon type={child.icon} />}>
-                <Link to={item.path + child.path}>
+                <Link onClick={(e) => stopPropagation(e as unknown as MouseEvent)} to={item.path + child.path}>
                   {child.title}
                 </Link>
               </Menu.Item>
@@ -121,7 +124,7 @@ const SiderMenu = ({ openKeys, selectedKeys, setOpenKeys, userInfo, layout }: Si
       className={
         layout === layoutTypes.TWO_COLUMN
           ? "layout-silder-menu hide-scrollbar"
-          : "layout-silder-menu toheader"
+          : "layout-silder-menu col"
       }
       onOpenChange={onOpenChange}
       openKeys={openKeys}
@@ -131,9 +134,9 @@ const SiderMenu = ({ openKeys, selectedKeys, setOpenKeys, userInfo, layout }: Si
     </Menu>
   );
 
-
-  const WrapContainer = layout === layoutTypes.TWO_COLUMN ? SliderContent : FlexBox
-  return <WrapContainer>{MenuList}</WrapContainer>
+  const WrapContainer =
+    layout === layoutTypes.TWO_COLUMN ? SliderContent : FlexBox;
+  return <WrapContainer>{MenuList}</WrapContainer>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SiderMenu);
