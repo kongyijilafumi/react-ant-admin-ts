@@ -71,7 +71,7 @@ function TopMenu({ openedMenu, filterKey, history, childKey }: Props | any) {
 
 
   return (
-    <div>
+    <div className="top-menu-wrapper">
       {breadArr.length > 0 && (
         <Breadcrumb className="top-breadcrumb">
           {breadArr.map((i) => (

@@ -119,12 +119,12 @@ const SiderMenu = ({
   // 菜单点击
   const MenuList = (
     <Menu
-      mode={layout === layoutTypes.TWO_COLUMN ? "inline" : "horizontal"}
+      mode={layout === layoutTypes.SINGLE_COLUMN ? "horizontal" : "inline"}
       triggerSubMenuAction="click"
       className={
-        layout === layoutTypes.TWO_COLUMN
-          ? "layout-silder-menu hide-scrollbar"
-          : "layout-silder-menu col"
+        layout === layoutTypes.SINGLE_COLUMN
+          ? "layout-silder-menu col"
+          : "layout-silder-menu hide-scrollbar"
       }
       onOpenChange={onOpenChange}
       openKeys={openKeys}
@@ -135,7 +135,7 @@ const SiderMenu = ({
   );
 
   const WrapContainer =
-    layout === layoutTypes.TWO_COLUMN ? SliderContent : FlexBox;
+    layout === layoutTypes.SINGLE_COLUMN ? FlexBox : SliderContent;
   return <WrapContainer>{MenuList}</WrapContainer>;
 };
 

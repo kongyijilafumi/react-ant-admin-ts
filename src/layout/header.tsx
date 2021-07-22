@@ -3,7 +3,7 @@ import logo from "@/assets/images/logo.svg";
 import MyIcon from "@/components/icon/";
 import { connect } from "react-redux";
 import { clearUser } from "@/store/user/action";
-import { clearSessionUser, setKey, saveToken } from "@/utils";
+import { clearSessionUser, setKey, USER_INFO, saveToken } from "@/utils";
 import { State, Dispatch } from "@/types"
 const { Header } = Layout;
 
@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
       info.isLogin = false;
     }
     saveToken(null);
-    setKey(true, "userInfo", info);
+    setKey(true, USER_INFO, info);
     dispatch(clearUser());
   },
 });

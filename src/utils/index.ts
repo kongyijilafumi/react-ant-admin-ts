@@ -1,5 +1,11 @@
 import { getMenus, RouterBasename, } from "@/common";
-import { DealMenuItem, DealMenuList, UserInfo, LayoutMode, MenuResponse } from "@/types"
+import { DealMenuItem, DealMenuList, UserInfo, LayoutMode, MenuResponse, State } from "@/types"
+
+export const USER_INFO = "USER_INFO";
+export const TOKEN = "admin_token";
+export const MENU = "MENU";
+export const VISIBEL = "COMPONENTS_VISIBEL";
+export const LAYOUT_MODE = "LAYOUT_MODE";
 
 interface MenuOpenData {
   openKeys: string[]
@@ -34,12 +40,12 @@ async function getDefaultMenu(): Promise<MenuOpenData> {
 }
 
 function getSessionUser() {
-  return getKey(false, "userInfo");
+  return getKey(false, USER_INFO);
 }
 
 function saveUser(info: UserInfo) {
-  setKey(true, "userInfo", info);
-  setKey(false, "userInfo", info);
+  setKey(true, USER_INFO, info);
+  setKey(false, USER_INFO, info);
 }
 
 function sleep(seconed: number) {
@@ -49,11 +55,11 @@ function sleep(seconed: number) {
 }
 
 function clearSessionUser() {
-  rmKey(false, "userInfo");
+  rmKey(false, USER_INFO);
 }
 
 function getLocalUser() {
-  return getKey(true, "userInfo");
+  return getKey(true, USER_INFO);
 }
 
 // 获取当前url
@@ -112,19 +118,19 @@ function reduceMenuList(list: DealMenuList): DealMenuList {
 }
 
 function getLocalMenu(): MenuResponse {
-  return getKey(false, "menu");
+  return getKey(false, MENU);
 }
 
 function saveLocalMenu(list: MenuResponse) {
-  setKey(false, "menu", list);
+  setKey(false, MENU, list);
 }
 
 function saveToken(token: Token) {
-  setKey(true, "token", token)
+  setKey(true, TOKEN, token)
 }
 
 function getToken(): Token {
-  return getKey(true, "token")
+  return getKey(true, TOKEN)
 }
 
 function getKey(isLocal: boolean, key: string) {
@@ -146,16 +152,22 @@ function stopPropagation(e: MouseEvent) {
 }
 
 function getLayoutMode(): LayoutMode | null {
-  return getKey(true, "layout-mode");
+  return getKey(true, LAYOUT_MODE);
 }
 function setLayoutMode(data: LayoutMode) {
-  setKey(true, "layout-mode", data);
+  setKey(true, LAYOUT_MODE, data);
 }
 function clearLocalDatas(keys: string[]) {
   keys.forEach((key) => {
     rmKey(true, key);
     rmKey(false, key);
   });
+}
+function getCompVisibel(): State["componentsVisible"] | null {
+  return getKey(true, VISIBEL);
+}
+function setCompVisibel(val: State["componentsVisible"]) {
+  return setKey(true, VISIBEL, val);
 }
 
 export {
@@ -178,5 +190,7 @@ export {
   stopPropagation,
   getLayoutMode,
   setLayoutMode,
-  clearLocalDatas
+  clearLocalDatas,
+  getCompVisibel,
+  setCompVisibel
 };

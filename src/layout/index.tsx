@@ -1,37 +1,30 @@
-import { Layout } from "antd";
-import Header from "./header";
-import Menu from "./siderMenu";
-import TopMenu from "./topMenu";
-import Footer from "./footer";
-import Router from "@/router";
-import * as LayoutTypes from "@/store/layout/actionTypes";
+import { SingleColumn, TowColumn, TwoFlanks } from "./mode";
 import { connect } from "react-redux";
-import { LayoutMode, State } from "@/types"
+import * as ActionTypes from "../store/layout/actionTypes";
+import { State } from "@/types"
 import "./index.less";
-const { Content } = Layout;
 
-interface LayoutBodyProps {
-  layout?: LayoutMode
+interface Props {
+  LayoutMode: State["layout"]
+  visibel: State["componentsVisible"]
 }
 
-const LayoutBody = ({ layout }: LayoutBodyProps) => {
-  return (
-    <Layout className="my-layout-body">
-      <Header children={layout === LayoutTypes.TWO_COLUMN ? null : <Menu />} />
-      <Layout>
-        {layout === LayoutTypes.TWO_COLUMN ? <Menu /> : null}
-        <Layout className="layout-content-wrap">
-          <TopMenu />
-          <Content className="site-layout-background layout-content-body">
-            <Router />
-          </Content>
-          <Footer />
-        </Layout>
-      </Layout>
-    </Layout>
-  );
-};
+const mapStateToProps = (state: State) => ({
+  LayoutMode: state.layout,
+  visibel: state.componentsVisible,
+});
 
-const mapStateToProps = (state: State) => ({ layout: state.layout });
+const LayoutContainer = ({ LayoutMode, visibel }: Props) => {
+  switch (LayoutMode) {
+    case ActionTypes.SINGLE_COLUMN:
+      return <SingleColumn visibel={visibel} />;
+    case ActionTypes.TWO_COLUMN:
+      return <TowColumn visibel={visibel} />;
+    case ActionTypes.TWO_FLANKS:
+      return <TwoFlanks visibel={visibel} />;
+    default:
+      return null;
+  }
+}
 
-export default connect(mapStateToProps, null)(LayoutBody);
+export default connect(mapStateToProps, () =>{})(LayoutContainer);
