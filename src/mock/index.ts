@@ -1,19 +1,6 @@
 import dayjs from "dayjs";
 import { message } from "antd";
-import { PowerApi, LoginApi, ResponseData, MenuInfoApi, MessageList, MessageAPi, MenuResponse } from "@/types"
-
-interface MockMenuItem {
-  title: string
-  path: string
-  key: string
-  parentKey: string,
-  icon: string,
-  type: string,
-  order: number,
-  parentPath?: string
-  keepAlive?: string
-  children?: MockMenuItem[]
-}
+import { PowerApi, LoginApi, ResponseData, MenuInfoApi, MessageList, MessageAPi, MenuResponse, MenuList, MenuItem } from "@/types"
 
 type MockDataType = {
   "/getmenu": MenuResponse
@@ -23,193 +10,252 @@ type MockDataType = {
   "/addmessage": ResponseData
   "/getmessage": MessageAPi
   "/delmenu": ResponseData
-  "/getmenuinfo": ResponseData & { data: MockMenuItem | null }
+  "/getmenuinfo": ResponseData & { data: MenuItem | null }
   "/editmenuinfo": ResponseData
   "/getvisitordata": ResponseData
-  [key: string]: ResponseData | MockMenuItem[] | PowerApi | LoginApi | MenuInfoApi | MenuResponse
+  [key: string]: ResponseData | MenuList | PowerApi | LoginApi | MenuInfoApi | MenuResponse
 }
 
-let menu: MockMenuItem[] = [
+const userInfoList = [
   {
-    title: "详情页",
-    path: "/details",
-    key: "details",
-    parentKey: "",
-    icon: "icon_edit",
-    type: "1,0",
-    order: 3,
+    user_id: 1,
+    username: "张同学",
+    account: "admin",
+    type_id: "超级管理员",
+    t_id: 1,
   },
   {
-    title: "个人中心",
-    path: "/person",
-    key: "detailsPerson",
-    parentKey: "details",
-    icon: "icon_infopersonal",
-    type: "0,1",
-    order: 2,
+    user_id: 2,
+    username: "王五",
+    account: "user",
+    type_id: "用户",
+    t_id: 2,
   },
   {
-    title: "403",
-    path: "/403",
-    key: "error403",
-    parentKey: "result",
-    icon: "",
-    type: "1,0",
-    order: 1,
+    user_id: 4,
+    username: "李四",
+    account: "qq123456",
+    type_id: "游客",
+    t_id: 3,
   },
   {
-    title: "404",
-    path: "/404",
-    key: "error404",
-    parentKey: "result",
-    icon: "",
-    type: "1,0",
-    order: 2,
+    user_id: 5,
+    username: "路过的老鼠",
+    account: "jake",
+    type_id: "低权游客",
+    t_id: 4,
   },
   {
-    title: "500",
-    path: "/500",
-    key: "error500",
-    parentKey: "result",
-    icon: "",
-    type: "1,0",
-    order: 3,
+    user_id: 6,
+    username: "站长",
+    account: "superAdmin",
+    type_id: "超级管理员",
+    t_id: 1,
   },
+];
+let currentUser = userInfoList[0];
+
+let menu: MenuList = [
   {
-    title: "基础表单",
-    path: "/index",
-    key: "formIndex",
-    parentKey: "from",
-    icon: "",
-    type: "1,0",
-    order: 2,
-  },
-  {
-    title: "表单页",
-    path: "/form",
-    key: "from",
-    parentKey: "",
-    icon: "icon_form",
-    type: "0,1",
-    order: 2,
-  },
-  {
+    menu_id: 9,
     title: "列表页",
     path: "/list",
     key: "list",
     parentKey: "",
     icon: "icon_list",
-    type: "0,1",
+    keepAlive: "false",
     order: 1,
   },
   {
+    menu_id: 10,
     title: "卡片列表",
     path: "/card",
     key: "listCard",
     parentKey: "list",
     icon: "",
-    type: "0,1",
-    order: 2,
+    keepAlive: "false",
+    order: 5485,
   },
   {
+    menu_id: 11,
     title: "查询列表",
     path: "/search",
     key: "listSearch",
     parentKey: "list",
     icon: "",
-    type: "0,1",
-    order: 1,
+    keepAlive: "false",
+    order: 9588,
   },
   {
-    title: "权限管理",
-    path: "/power",
-    key: "power",
+    menu_id: 7,
+    title: "表单页",
+    path: "/form",
+    key: "from",
     parentKey: "",
-    icon: "icon_set",
-    type: "0",
-    order: 888,
+    icon: "icon_form",
+    keepAlive: "false",
+    order: 3,
   },
   {
-    title: "菜单管理",
-    path: "/menu",
-    key: "powerMenu",
-    parentKey: "power",
-    icon: "icon_menu",
-    type: "0",
-    order: 1,
+    menu_id: 6,
+    title: "基础表单",
+    path: "/index",
+    key: "formIndex",
+    parentKey: "from",
+    icon: "",
+    keepAlive: "false",
+    order: 9654,
   },
   {
+    menu_id: 1,
+    title: "详情页",
+    path: "/details",
+    key: "details",
+    parentKey: "",
+    icon: "icon_edit",
+    keepAlive: "false",
+    order: 3,
+  },
+  {
+    menu_id: 2,
+    title: "个人中心",
+    path: "/person",
+    key: "detailsPerson",
+    parentKey: "details",
+    icon: "icon_infopersonal",
+    keepAlive: "false",
+    order: 9998,
+  },
+  {
+    menu_id: 16,
     title: "结果页",
     path: "/result",
     key: "result",
     parentKey: "",
     icon: "icon_voiceprint",
-    type: "1,0",
+    keepAlive: "false",
     order: 4,
   },
   {
-    icon: "icon_MTR",
-    keepAlive: "true",
+    menu_id: 3,
+    title: "403",
+    path: "/403",
+    key: "error403",
+    parentKey: "result",
+    icon: "icon_locking",
+    keepAlive: "false",
+    order: 0,
+  },
+  {
+    menu_id: 4,
+    title: "404",
+    path: "/404",
+    key: "error404",
+    parentKey: "result",
+    icon: "icon_close",
+    keepAlive: "false",
+    order: 1,
+  },
+  {
+    menu_id: 5,
+    title: "500",
+    path: "/500",
+    key: "error500",
+    parentKey: "result",
+    icon: "icon_privacy_closed",
+    keepAlive: "false",
+    order: 4568,
+  },
+  {
+    menu_id: 17,
+    title: "统计",
+    path: "/statistics",
     key: "statistics",
     parentKey: "",
-    path: "/statistics",
-    title: "统计",
-    type: "0",
-    order: 6,
+    icon: "icon_MTR",
+    keepAlive: "true",
+    order: 5,
   },
   {
-    icon: "icon_addresslist",
-    keepAlive: "true",
+    menu_id: 18,
+    title: "访客统计",
+    path: "/visitor",
     key: "visitor",
     parentKey: "statistics",
-    path: "/visitor",
-    title: "访客统计",
-    type: "0",
-    order: 2,
+    icon: "icon_addresslist",
+    keepAlive: "true",
+    order: 1,
   },
   {
+    menu_id: 12,
+    title: "权限管理",
+    path: "/power",
+    key: "power",
+    parentKey: "",
+    icon: "icon_set",
+    keepAlive: "false",
+    order: 9,
+  },
+  {
+    menu_id: 14,
+    title: "权限类别",
+    path: "/type",
+    key: "powerType",
+    parentKey: "power",
+    icon: "icon_safety",
+    keepAlive: "true",
+    order: 12,
+  },
+  {
+    menu_id: 13,
+    title: "菜单管理",
+    path: "/menu",
+    key: "powerMenu",
+    parentKey: "power",
+    icon: "icon_menu",
+    keepAlive: "true",
+    order: 1475,
+  },
+  {
+    menu_id: 15,
     title: "用户管理",
     path: "/user",
     key: "powerUser",
     parentKey: "power",
     icon: "icon_infopersonal",
-    type: "0",
     keepAlive: "true",
-    order: 2,
+    order: 1593,
   },
   {
-    icon: "icon_safety",
-    keepAlive: "true",
-    key: "powerType",
-    order: 8888,
-    parentKey: "power",
-    path: "/type",
-    title: "权限管理",
-    type: "0",
-  },
-  {
-    icon: "icon_safety",
-    keepAlive: "true",
-    key: "icons",
-    order: 8887,
-    parentKey: "",
-    path: "/icons",
+    menu_id: 8,
     title: "图标库",
-    type: "0,1",
+    path: "/icons",
+    key: "icons",
+    parentKey: "",
+    icon: "icon_pen",
+    keepAlive: "true",
+    order: 10,
   },
 ];
-
+const typeList = [
+  {
+    type_id: 1,
+    name: "超级管理员",
+    menu_id: "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,1",
+  },
+  { type_id: 2, name: "用户", menu_id: "1,9,10,11,2,7,6,17,18,16,3,4,5,8" },
+  { type_id: 3, name: "游客", menu_id: "9,1,10,11,2,7,6,17,18,12" },
+  { type_id: 4, name: "低权游客", menu_id: "9,10" },
+];
 const power = {
   status: 0,
-  data: [
-    { type: "0", name: "超级管理员" },
-    { type: "1", name: "普通用户" },
-  ],
+  data: typeList,
   mapKey: [
-    { title: "权限代号", dataIndex: "type", key: "type" },
+    { title: "权限id", dataIndex: "type_id", key: "type_id" },
     { title: "权限简称", dataIndex: "name", key: "name" },
+    { title: "显示菜单列表id", dataIndex: "menu_id", key: "menu_id" },
   ],
-  msg: ""
+  menu: formatMenu(menu),
 };
 
 const userInfo = {
@@ -276,18 +322,19 @@ const msg: MessageAPi = {
 };
 const delMenu = { msg: "操作成功", status: 0 };
 const MenuMapKey = [
+  { title: "菜单id", dataIndex: "menu_id", key: "menu_id" },
   { title: "菜单名称", dataIndex: "title", key: "title" },
   { title: "菜单路由", dataIndex: "path", key: "path" },
-  { title: "菜单key", dataIndex: "key", key: "key" }, { title: "菜单父级key", dataIndex: "parentKey", key: "parentKey" }, { title: "菜单图标", dataIndex: "icon", key: "icon" }, { title: "菜单权限", dataIndex: "type", key: "type" }, { title: "页面关闭保持状态", dataIndex: "keepAlive", key: "keepAlive" }, { title: "菜单排序(越小越靠前)", dataIndex: "order", key: "order" }
+  { title: "菜单唯一key", dataIndex: "key", key: "key" },
+  { title: "菜单父级key", dataIndex: "parentKey", key: "parentKey" },
+  { title: "菜单图标", dataIndex: "icon", key: "icon" },
+  { title: "页面是否保持状态", dataIndex: "keepAlive", key: "keepAlive" },
+  { title: "菜单排序", dataIndex: "order", key: "order" },
 ]
 const MockData: MockDataType = {
   "/getmenu": {
     data: formatMenu(menu),
     mapKey: MenuMapKey,
-    type: [
-      { type: "0", name: "超级管理员" },
-      { type: "1", name: "普通用户" },
-    ]
   },
   "/getpower": power,
   "/login": userInfo,
@@ -304,22 +351,25 @@ function get(url: UrlType) {
   return new Promise((res) => {
     setTimeout(() => {
       if (url === "/getmenu") {
-        return res(MockData[url]);
-      } else {
-        let resData = MockData[url]
-        res(resData || { status: 1, msg: "暂无" });
+        let typeId = currentUser.t_id;
+        if (typeId) {
+          let action: string | undefined | number[] = typeList.find((i) => i.type_id === typeId)?.menu_id;
+          action = action ? action.split(",").map(Number) : [];
+          let menuList = menu.filter((i) => (action as number[]).includes(i.menu_id));
+          MockData[url].data = formatMenu(menuList);
+        }
+        res(MockData[url]);
+
+        return;
       }
+      res(MockData[url]);
     }, 500);
   }).then((res) => (res ? res : message.error("接口暂未配置")));
 }
 
-interface PostData extends MockMenuItem {
-  account: string
-  name: string
-  description: string
-}
 
-function post(url: UrlType, data: PostData) {
+
+function post(url: UrlType, data: any) {
   return new Promise((res, rej) => {
     setTimeout(() => {
       switch (url) {
@@ -385,14 +435,13 @@ function post(url: UrlType, data: PostData) {
   }).then((res: any) => (res.status === 0 ? res : message.error("接口暂未配置")));
 }
 
-function formatMenu(list: MockMenuItem[]): MenuResponse["data"] {
-  list.sort((a: MockMenuItem, b: MockMenuItem) => a.order - b.order);
+function formatMenu(list: MenuList): MenuResponse["data"] {
+  list.sort((a: MenuItem, b: MenuItem) => a.order - b.order);
   let data = list.map((i) => ({ ...i }));
   if (Array.isArray(list)) {
-    let praentList: MockMenuItem[] = [],
-      childList: MockMenuItem[] = [];
+    let praentList: MenuItem[] = [],
+      childList: MenuItem[] = [];
     data.forEach((item) => {
-      (item.type as unknown as string[]) = Array.isArray(item.type) ? item.type : item.type.split(",");
       if (item.parentKey) {
         childList.push(item);
         return;

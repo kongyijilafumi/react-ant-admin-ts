@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MyIcon from "@/components/icon";
 import { Modal, Form, Input, Select, message, Radio, InputNumber } from "antd";
-import { getPower, addMenu, getMenuInfo, editMenu } from "@/api";
-import { DealMenuList, MenuItem, PowerList } from "@/types"
+import { addMenu, getMenuInfo, editMenu } from "@/api";
+import { MenuList, MenuItem } from "@/types"
 import { ModalType, SelectInfo } from "@/pages/power/menu"
 import "./index.less";
 interface IconItem {
@@ -13,13 +13,19 @@ interface IconItem {
   unicode_decimal: number
 }
 
-interface AddMenuProps {
+interface MenuModalProps {
   info: SelectInfo
   modalType: ModalType
   isShow: boolean
   setShow: (s: boolean) => void
   updateMenu: () => void
-  menus: DealMenuList
+  menus: MenuList
+}
+
+interface ActiveFn {
+  add: (data: MenuItem) => void;
+  edit: (data: MenuItem) => void;
+  addChild: (data: MenuItem) => void;
 }
 const ICON_JSON = require("@/assets/json/iconfont.json");
 const ICON_PREFIX: string = ICON_JSON.css_prefix_text;
@@ -27,7 +33,6 @@ const ICON_DATA: IconItem[] = ICON_JSON.glyphs;
 const titleRules = [{ required: true, message: "请填写菜单标题" }];
 const pathRules = [{ required: true, message: "请填写菜单路径" }];
 const keyRules = [{ required: true, message: "请填写菜单key值" }];
-const powerRules = [{ required: true, message: "请填写菜单权限可见" }];
 const keepRules = [{ required: true, message: "请选择菜单缓存模式" }];
 const orderRules = [
   { min: 0, max: 10000, message: "请正确填写菜单排序大小" },
@@ -44,35 +49,21 @@ const titleType: {
   edit: "修改菜单信息",
 };
 
-export default function AddMenu({
+export default function MenuModal({
   info,
   modalType = "add",
   isShow,
   setShow,
   updateMenu,
   menus = [],
-}: AddMenuProps) {
+}: MenuModalProps) {
   const [form] = Form.useForm();
-  const [powers, setPowers] = useState<PowerList>([]);
-  const [activeFn] = useState<{
-    add: (data: MenuItem) => void;
-    edit: (data: MenuItem) => void;
-    addChild: (data: MenuItem) => void;
-  }>({ add, edit, addChild: add });
-
-  useEffect(() => {
-    getPower().then((res) => {
-      if (res.status === 0) {
-        setPowers(res.data);
-      }
-    });
-  }, []);
+  const [activeFn] = useState<ActiveFn>({ add, edit, addChild: add });
 
   useEffect(() => {
     if (modalType === "edit" && isShow) {
       getMenuInfo({ key: info && info.key }).then((res) => {
         if (res.status === 0 && res.data) {
-          (res.data.type as unknown as string[]) = res.data.type.split(",");
           form.setFieldsValue(res.data);
         }
       });
@@ -86,8 +77,6 @@ export default function AddMenu({
   // 提交表单
   const submit = () => {
     form.validateFields().then((values) => {
-      console.log(values);
-      values.type = values.type.join(",");
       let fn = activeFn[modalType];
       fn(values);
     });
@@ -157,16 +146,6 @@ export default function AddMenu({
             </Select>
           </Form.Item>
         )}
-        <Form.Item name="type" rules={powerRules} label="菜单权限">
-          <Select mode="multiple" placeholder="谁可见？">
-            {powers.map((power) => (
-              <Option value={power.type} key={power.type}>
-                {power.name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
         <Form.Item name="icon" label="图标选择">
           <Select
             placeholder="图标"

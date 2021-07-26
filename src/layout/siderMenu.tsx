@@ -5,15 +5,14 @@ import { Layout, Menu, Button, Affix, Col } from "antd";
 import MyIcon from "@/components/icon";
 import { getMenus } from "@/common";
 import { setOpenKey } from "@/store/menu/action";
-import { filterMenuList, stopPropagation } from "@/utils";
-import { State, DealMenuList, Dispatch } from "@/types"
+import { stopPropagation } from "@/utils";
+import { State, MenuList, Dispatch } from "@/types"
 import * as layoutTypes from "@/store/layout/actionTypes";
 
 interface SiderMenuProps {
   openKeys: State["menu"]["openMenuKey"]
   selectedKeys: State["menu"]["selectMenuKey"]
   setOpenKeys: (val: string[]) => void
-  userInfo: State["user"]
   layout: State["layout"],
 }
 
@@ -29,7 +28,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 const mapStateToProps = (state: State) => ({
   openKeys: state.menu.openMenuKey,
   selectedKeys: state.menu.selectMenuKey,
-  userInfo: state.user,
   layout: state.layout
 });
 
@@ -49,11 +47,7 @@ const SliderContent = ({ children }: { children: JSX.Element }) => {
   };
   return (
     <Affix>
-      <Sider
-        width={200}
-        collapsed={collapsed}
-        className="site-layout-background"
-      >
+      <Sider width={200} collapsed={collapsed} >
         {children}
         <div className="fold-control fixed">
           <Button onClick={toggleCollapsed}>
@@ -69,15 +63,15 @@ const SiderMenu = ({
   openKeys,
   selectedKeys,
   setOpenKeys,
-  userInfo,
   layout,
 }: SiderMenuProps) => {
-  const [menuList, setMenu] = useState<DealMenuList>([]);
+  const [menuList, setMenu] = useState<MenuList>([]);
   // 设置菜单
   useEffect(() => {
     getMenus().then((res) => {
-      let list = filterMenuList(res.data, userInfo ? userInfo.type : "");
-      setMenu(list);
+      if (res.data && Array.isArray(res.data)) {
+        setMenu(res.data);
+      }
     });
     // eslint-disable-next-line
   }, []);

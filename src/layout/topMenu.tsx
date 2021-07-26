@@ -7,7 +7,7 @@ import { filterOpenKey } from "@/store/menu/action";
 import { getCurrentUrl, reduceMenuList } from "@/utils";
 import { message, Breadcrumb } from "antd";
 import { getMenus } from "@/common";
-import { State, OpenedMenu, Dispatch, DealMenuItem, DealMenuList, History } from "@/types"
+import { State, OpenedMenu, Dispatch, MenuItem, MenuList, History } from "@/types"
 type Props = {
   openedMenu: OpenedMenu
   filterKey: (key: string) => void
@@ -23,7 +23,7 @@ const mapStateToProps = (state: State) => ({
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   filterKey: (key: string) => dispatch(filterOpenKey(key)),
 });
-function getParent(list: DealMenuList, parentKey: string): DealMenuItem | undefined {
+function getParent(list: MenuList, parentKey: string): MenuItem | undefined {
   return list.find((i) => i.key === parentKey);
 }
 async function getBreadArray(ckey: string) {
@@ -42,7 +42,7 @@ async function getBreadArray(ckey: string) {
   return arr;
 }
 
-const InitData: DealMenuItem[] = []
+const InitData: MenuItem[] = []
 
 function TopMenu({ openedMenu, filterKey, history, childKey }: Props | any) {
   const [breadArr, setBread] = useState(InitData);

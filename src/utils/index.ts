@@ -1,5 +1,5 @@
 import { getMenus, RouterBasename, } from "@/common";
-import { DealMenuItem, DealMenuList, UserInfo, LayoutMode, MenuResponse, State } from "@/types"
+import { MenuItem, MenuList, UserInfo, LayoutMode, MenuResponse, State } from "@/types"
 
 export const USER_INFO = "USER_INFO";
 export const TOKEN = "admin_token";
@@ -10,7 +10,7 @@ export const LAYOUT_MODE = "LAYOUT_MODE";
 interface MenuOpenData {
   openKeys: string[]
   selectKey: string[]
-  openedMenu: DealMenuItem[]
+  openedMenu: MenuItem[]
 }
 type Token = string | null | undefined
 
@@ -18,14 +18,14 @@ type Token = string | null | undefined
 async function getDefaultMenu(): Promise<MenuOpenData> {
   let openKeys: string[] = [],
     selectKey: string[] = [],
-    openedMenu: DealMenuItem[] = [];
+    openedMenu: MenuItem[] = [];
   const res = await getMenus();
   const menuList = res.data
   menuList.some((list) => {
     const child = list.children;
     if (child && child.length) {
-      openKeys = [list.key];
-      selectKey = [child[0]["key"]];
+      openKeys = [(list.key as string)];
+      selectKey = [(child[0]["key"] as string)];
       openedMenu = [child[0]];
       return true;
     }
@@ -52,10 +52,6 @@ function sleep(seconed: number) {
   return new Promise((res, rej) => {
     setTimeout(res, seconed);
   });
-}
-
-function clearSessionUser() {
-  rmKey(false, USER_INFO);
 }
 
 function getLocalUser() {
@@ -95,26 +91,16 @@ async function getMenuParentKey(key: string): Promise<string | undefined> {
   return parentKey;
 }
 
-function filterMenuList(list: DealMenuList, type: string): DealMenuList {
-  return list.filter((item) => {
-    if (item.children && Array.isArray(item.children) && item.children.length) {
-      item.children = filterMenuList(item.children, type);
-    }
-    if (item.type.includes(type)) {
-      return true;
-    }
-    return false;
-  });
-}
 
-function reduceMenuList(list: DealMenuList): DealMenuList {
+
+function reduceMenuList(list: MenuList): MenuList {
   return list.reduce((a, c) => {
     a.push(c);
     if (c.children) {
       a.push(...c.children);
     }
     return a;
-  }, ([] as Array<DealMenuItem>));
+  }, ([] as Array<MenuItem>));
 }
 
 function getLocalMenu(): MenuResponse {
@@ -173,13 +159,11 @@ function setCompVisibel(val: State["componentsVisible"]) {
 export {
   getDefaultMenu,
   getSessionUser,
-  clearSessionUser,
   saveUser,
   sleep,
   getLocalUser,
   getCurrentUrl,
   getMenuParentKey,
-  filterMenuList,
   reduceMenuList,
   getLocalMenu,
   saveLocalMenu,

@@ -1,6 +1,6 @@
 import { getLocalMenu, saveLocalMenu } from "../utils";
 import { getMenu } from "@/api";
-import { MenuResponse, DealMenuList } from "@/types"
+import { MenuResponse, MenuList } from "@/types"
 
 const RouterBasename: string = "/react-ant-admin";
 function getMenus(): Promise<MenuResponse> {
@@ -15,7 +15,7 @@ function getMenus(): Promise<MenuResponse> {
         res(result);
       })
       .catch((err) => {
-        res({ data: [] as DealMenuList, mapKey: [], type: [] });
+        res({ data: [] as MenuList, mapKey: [] });
       });
   });
 }

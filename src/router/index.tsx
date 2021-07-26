@@ -1,16 +1,16 @@
-import React, { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { Route } from "react-router-dom";
 import { CacheRoute, CacheSwitch } from "react-router-cache-route";
 import routerList from "./list";
 import Intercept from "./intercept";
 import { getMenus } from "@/common";
 import { reduceMenuList } from "@/utils";
-import { DealMenuItem } from "@/types"
+import { MenuList } from "@/types"
 
 function useRouter() {
-  const [list, setList] = useState<DealMenuItem[]>([]);
+  const [list, setList] = useState<MenuList>([]);
   const [routerBody, setRoute] = useState<ReactElement[] | null>(null);
-
+  const [menuList, setMenu] = useState<MenuList>([]);
   useEffect(() => {
     getMenus().then((res) => {
       let list = reduceMenuList(res.data);
@@ -20,17 +20,20 @@ function useRouter() {
         );
         if (find) {
           router = { ...find, ...router };
+        } else {
+          router.key = router.path;
         }
-        return (router as unknown as DealMenuItem);
+        return router;
       });
       if (list && list.length) {
-        setList(routers);
+        setList(routers as unknown as MenuList);
+        setMenu(list);
       }
     });
   }, []);
 
   useEffect(() => {
-    if (list.length > 0) {
+    if (list.length && menuList.length) {
       const dom = list.map((item) => {
         let { key, path } = item;
         const RenderRoute = item.keepAlive === "true" ? CacheRoute : Route;
@@ -40,14 +43,19 @@ function useRouter() {
             exact={true}
             path={path}
             render={(allProps) => (
-              <Intercept {...allProps} {...item} pageKey={key} />
+              <Intercept
+                {...allProps}
+                {...item}
+                menuList={menuList}
+                pageKey={key}
+              />
             )}
           />
         );
       });
       setRoute(dom);
     }
-  }, [list]);
+  }, [list, menuList]);
 
   return { routerBody };
 }

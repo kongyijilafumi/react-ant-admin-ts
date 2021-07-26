@@ -3,8 +3,22 @@ import logo from "@/assets/images/logo.svg";
 import MyIcon from "@/components/icon/";
 import { connect } from "react-redux";
 import { clearUser } from "@/store/user/action";
-import { clearSessionUser, setKey, USER_INFO, saveToken } from "@/utils";
+import {
+  setKey,
+  saveToken,
+  clearLocalDatas,
+  USER_INFO,
+  TOKEN,
+  MENU,
+} from "@/utils";
 import { State, Dispatch } from "@/types"
+
+interface LayoutHeaderProps {
+  userInfo: State["user"];
+  clearStateUser: () => void;
+  children: JSX.Element | null
+}
+
 const { Header } = Layout;
 
 const mapStateToProps = (state: State) => ({
@@ -12,13 +26,7 @@ const mapStateToProps = (state: State) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  userOut: (info: State["user"]) => {
-    clearSessionUser();
-    if (info) {
-      info.isLogin = false;
-    }
-    saveToken(null);
-    setKey(true, USER_INFO, info);
+  clearStateUser: () => {
     dispatch(clearUser());
   },
 });
@@ -39,11 +47,16 @@ const RightMenu = ({ logout }: {
 
 const getPopupContainer = (HTMLElement: HTMLElement) => HTMLElement;
 
-const HeaderDom = ({ userInfo, userOut, children }: {
-  userInfo: State["user"];
-  userOut: (u: State["user"]) => void;
-  children: JSX.Element | null
-}) => {
+const LayoutHeader = ({ userInfo, clearStateUser, children }: LayoutHeaderProps) => {
+  const logout = () => {
+    clearLocalDatas([USER_INFO, TOKEN, MENU]);
+    if (userInfo) {
+      setKey(true, USER_INFO, { ...userInfo, isLogin: false });
+    }
+    saveToken(null);
+    window.location.href = "/";
+    clearStateUser();
+  };
   return (
     <Header className="header">
       <div className="logo">
@@ -55,7 +68,7 @@ const HeaderDom = ({ userInfo, userOut, children }: {
         <Dropdown
           placement="bottomCenter"
           getPopupContainer={getPopupContainer}
-          overlay={<RightMenu logout={() => userOut(userInfo)} />}
+          overlay={<RightMenu logout={logout} />}
         >
           <div>管理员：{userInfo && userInfo.username}</div>
         </Dropdown>
@@ -63,4 +76,4 @@ const HeaderDom = ({ userInfo, userOut, children }: {
     </Header>
   );
 };
-export default connect(mapStateToProps, mapDispatchToProps)(HeaderDom);
+export default connect(mapStateToProps, mapDispatchToProps)(LayoutHeader);

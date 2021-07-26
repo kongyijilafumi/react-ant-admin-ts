@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Row, Button, message, Popconfirm, Tag } from "antd";
+import { Row, Button, message, Popconfirm } from "antd";
 import { getMenu, delMenu } from "@/api";
 import MenuModal from "@/components/modal/menu";
 import MyTable from "@/components/table";
 import MyIcon from "@/components/icon";
-import { DealMenuList, MapKey } from "@/types"
+import { MenuList, MapKey } from "@/types"
 import "./index.less";
 
 
@@ -15,7 +15,7 @@ export type SelectInfo = {
 }
 
 function useMenu() {
-  const [menus, setMenu] = useState<DealMenuList>([]);
+  const [menus, setMenu] = useState<MenuList>([]);
   const [tabCol, setCol] = useState<MapKey>([]);
   const [selectInfo, setSelectInfo] = useState<SelectInfo>({});
   const [showModal, setShowModal] = useState(false);
@@ -55,7 +55,6 @@ function useMenu() {
   const getMenuList = () => {
     getMenu().then((res) => {
       if (res) {
-        const types = res.type;
         res.mapKey.push(menuAction);
         res.mapKey.forEach((item) => {
           if (item.dataIndex === "icon") {
@@ -63,19 +62,6 @@ function useMenu() {
               text ? <MyIcon className="preview" type={text} /> : "暂未设置";
           } else if (item.dataIndex === "keepAlive") {
             item.render = (text: string) => (text === "true" ? "保持" : "关闭销毁");
-          } else if (item.dataIndex === "type") {
-            item.render = (text: string[]) => {
-              return text.map((type) => {
-                const find = types.find((i) => i.type === type);
-                return find ? (
-                  <Tag color="#2db7f5" className="type-tag" key={type}>
-                    {find.name}
-                  </Tag>
-                ) : (
-                  type
-                );
-              });
-            };
           }
         });
         setCol(res.mapKey);
@@ -90,7 +76,7 @@ function useMenu() {
   }, []);
 
   const openModal = (type: ModalType, { key, isParent }: SelectInfo) => {
-    setSelectInfo({ key, isParent: Boolean(isParent) });
+    setSelectInfo({ key, isParent: !Boolean(isParent) });
     setModalType(type);
     setShowModal(true);
   };
@@ -135,7 +121,7 @@ export default function Menu() {
       <Button type="primary" onClick={addMenu}>
         新增菜单
       </Button>
-      <MyTable dataSource={menus} columns={tabCol} saveKey="menuTbale" />
+      <MyTable dataSource={menus} columns={tabCol} saveKey="MENUTABLE" />
       <MenuModal
         menus={menus}
         isShow={showModal}

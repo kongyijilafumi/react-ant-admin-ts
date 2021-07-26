@@ -22,34 +22,24 @@ export interface MenuState {
 
 // 未处理的菜单列表信息
 export interface MenuItem {
+  menu_id: number
   icon: string
   keepAlive: string
-  key: string
+  key: string | number
   order: number
   parentKey: string
   path: string
   title: string
-  type: MenuType
   children?: MenuList
+  parentPath?: string
 }
 
-type MenuType = string
-
-type DealMenuType = string[]
 
 
 export type MenuList = MenuItem[]
 
-// 已处理的菜单列表信息
-export type DealMenuItem = {
-  type: DealMenuType
-  parentPath: string
-  children?: DealMenuItem[]
-} & Omit<MenuItem, "type" | "children">
-export type DealMenuList = DealMenuItem[]
 
 export interface MenuResponse {
-  data: DealMenuList
+  data: MenuList
   mapKey: MapKey
-  type: PowerList
 }

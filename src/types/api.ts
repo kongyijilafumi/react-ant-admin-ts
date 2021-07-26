@@ -1,5 +1,5 @@
 import { UserInfo } from "./user"
-import { MenuItem } from "./menu"
+import { MenuItem, MenuList } from "./menu"
 export type MessageList = MessageItem[]
 type MessageItem = {
   add_time: string
@@ -17,7 +17,7 @@ export type MapKey = {
 }[]
 export interface ResponseData {
   status: number
-  msg: string
+  msg?: string
 }
 export interface MessageAPi extends ResponseData {
   data?: {
@@ -32,13 +32,15 @@ export interface LoginApi extends ResponseData {
   token: string
 }
 export type PowerList = {
-  type: string
+  type_id: number
   name: string
+  menu_id: string
 }[]
 
 export interface PowerApi extends ResponseData {
   data: PowerList
   mapKey: MapKey
+  menu: MenuList
 }
 
 export interface MenuInfoApi extends ResponseData {

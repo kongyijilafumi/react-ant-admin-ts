@@ -3,11 +3,10 @@ import { addOpenedMenu, setOpenKey, setSelectKey } from "@/store/menu/action";
 import { connect } from "react-redux";
 import { getCurrentUrl, getMenuParentKey } from "@/utils";
 import Error from "@pages/err";
-import { OpenedMenu, State, Dispatch } from "@/types";
+import { OpenedMenu, State, Dispatch, MenuList } from "@/types";
 
 const mapStateToProps = (state: State) => ({
   openMenus: state.menu.openedMenu,
-  userInfo: state.user,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -28,6 +27,7 @@ interface Props {
   type: string
   components: React.SFC
   userInfo: State["user"]
+  menuList: MenuList
   [key: string]: any
 }
 
@@ -96,12 +96,14 @@ class Intercept extends React.Component<Props, any> {
       setOpenKeys,
       setSelectedKeys,
       addOpenedMenuFn,
-      type,
       components: Components,
-      userInfo,
+      menuList,
       ...itemProps
     } = this.props;
-    if (userInfo && userInfo.type && type && !type.includes(userInfo.type)) {
+    const hasPath = !menuList.find(
+      (m) => (m.parentPath || "") + m.path === path
+    );
+    if (hasPath && path !== "/") {
       return (
         <Error
           {...itemProps}

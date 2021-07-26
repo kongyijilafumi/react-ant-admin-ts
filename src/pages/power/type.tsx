@@ -1,65 +1,74 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Row, Col } from "antd";
 import TypeModal, { Info } from "@/components/modal/type";
 import { getPower } from "@/api";
 import MyTable from "@/components/table";
 import "./index.less";
-import { MapKey, PowerList } from "@/types"
+import { MapKey, MenuList, PowerList } from "@/types"
+
+function formatMenuKey(list: MenuList) {
+  return list.map((item) => {
+    item.key = item.menu_id;
+    if (item.children) {
+      item.children = formatMenuKey(item.children);
+    }
+    return item;
+  });
+}
+
 function useTypes() {
   const [showModal, setShow] = useState(false);
   const [tableData, setData] = useState<PowerList>([]);
   const [tableCol, setCol] = useState<MapKey>([]);
   const [choose, setChoose] = useState<Info>(null);
+  const [menuList, setMenuList] = useState<MenuList>([]);
+
   useEffect(() => {
     getTypeData();
     // eslint-disable-next-line
   }, []);
-  const modalControl = useCallback((info: Info, open: boolean) => {
+  const modalControl = (info: Info, open: boolean) => {
     setChoose(info);
     setShow(open);
-  }, []);
-  const activeCol = useMemo(
-    () => ({
-      dataIndex: "active",
-      key: "active",
-      title: "操作",
-      align: "center",
-      render: (text: any, record: any) => (
-        <Button type="link" onClick={() => modalControl(record, true)}>
-          编辑
-        </Button>
-      ),
-    }),
-    [modalControl]
-  );
-  const renderTitle = useCallback(
-    () => (
-      <Row justify="space-between" gutter={80}>
-        <Col style={{ lineHeight: "32px" }}>用户信息列表</Col>
-        <Col>
-          <Button type="primary" onClick={() => modalControl(null, true)}>
-            添加管理权限
-          </Button>
-        </Col>
-      </Row>
+  }
+  const activeCol = {
+    dataIndex: "active",
+    key: "active",
+    title: "操作",
+    align: "center",
+    render: (text: any, record: any) => (
+      <Button type="link" onClick={() => modalControl(record, true)}>
+        编辑
+      </Button>
     ),
-    [modalControl]
-  );
-  const getTypeData = useCallback(() => {
+  }
+  const renderTitle = () => (
+    <Row justify="space-between" gutter={80}>
+      <Col style={{ lineHeight: "32px" }}>用户信息列表</Col>
+      <Col>
+        <Button type="primary" onClick={() => modalControl(null, true)}>
+          添加管理权限
+        </Button>
+      </Col>
+    </Row>
+  )
+  const getTypeData = () => {
     getPower().then((res) => {
       if (res.status === 0) {
         res.mapKey.push(activeCol);
+        setMenuList(formatMenuKey(res.menu));
         setData(res.data);
         setCol(res.mapKey);
       }
     });
-  }, [activeCol]);
+  }
   return {
     renderTitle,
     tableCol,
     tableData,
     showModal,
     choose,
+    menuList,
     modalControl,
     getTypeData,
   };
@@ -73,6 +82,7 @@ export default function Types() {
     showModal,
     choose,
     modalControl,
+    menuList,
     getTypeData,
   } = useTypes();
   return (
@@ -86,6 +96,7 @@ export default function Types() {
       <TypeModal
         isShow={showModal}
         info={choose}
+        menuList={menuList}
         onCancel={modalControl}
         onOk={getTypeData}
       />
