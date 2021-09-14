@@ -1,9 +1,10 @@
 import React from "react";
 import { addOpenedMenu, setOpenKey, setSelectKey } from "@/store/menu/action";
 import { connect } from "react-redux";
-import { getCurrentUrl, getMenuParentKey } from "@/utils";
+import { getMenuParentKey } from "@/utils";
 import Error from "@pages/err";
 import { OpenedMenu, State, Dispatch, MenuList } from "@/types";
+import { Spin } from "antd";
 
 const mapStateToProps = (state: State) => ({
   openMenus: state.menu.openedMenu,
@@ -25,7 +26,7 @@ interface Props {
   setSelectedKeys: (val: string[]) => void
   addOpenedMenuFn: (val: OpenedMenu) => void
   type: string
-  components: React.SFC
+  components: React.SFC<any>
   userInfo: State["user"]
   menuList: MenuList
   [key: string]: any
@@ -50,12 +51,13 @@ class Intercept extends React.Component<Props, any> {
       openMenus,
       setOpenKeys,
       setSelectedKeys,
+      location
     } = this.props;
     if (!title) {
       return;
     }
     document.title = title;
-    const pagePath = getCurrentUrl();
+    const pagePath = location.pathname + (location.hash || location.search);
     const findInfo = openMenus.find((i) => i.path === pagePath);
     setSelectedKeys([pageKey]);
     let openkey: string | undefined | string[] = await getMenuParentKey(pageKey);
@@ -86,7 +88,13 @@ class Intercept extends React.Component<Props, any> {
       });
     }
   };
-
+  fellbackStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 500,
+    fontSize: 24,
+  };
   render() {
     const {
       path,
@@ -103,7 +111,7 @@ class Intercept extends React.Component<Props, any> {
     const hasPath = !menuList.find(
       (m) => (m.parentPath || "") + m.path === path
     );
-    if (hasPath && path !== "/") {
+    if (hasPath && path !== "/" && path !== "*") {
       return (
         <Error
           {...itemProps}
@@ -113,7 +121,7 @@ class Intercept extends React.Component<Props, any> {
         />
       );
     }
-    return <Components {...itemProps} />;
+    return <Components {...itemProps} fallback={<Spin style={this.fellbackStyle} tip="页面加载中...." />} />;
   }
 }
 

@@ -1,6 +1,6 @@
-import { getMenus, RouterBasename, } from "@/common";
+import { getMenus, } from "@/common";
 import { MenuItem, MenuList, UserInfo, LayoutMode, MenuResponse, State } from "@/types"
-
+import { RouterInfo } from "@/router/list"
 export const USER_INFO = "USER_INFO";
 export const TOKEN = "admin_token";
 export const MENU = "MENU";
@@ -58,15 +58,6 @@ function getLocalUser() {
   return getKey(true, USER_INFO);
 }
 
-// 获取当前url
-function getCurrentUrl() {
-  let path = window.location.pathname;
-  if (RouterBasename === "/") {
-    return path;
-  }
-  path = path.replace(RouterBasename, "");
-  return path;
-}
 
 async function getMenuParentKey(key: string): Promise<string | undefined> {
   let parentKey;
@@ -92,15 +83,55 @@ async function getMenuParentKey(key: string): Promise<string | undefined> {
 }
 
 
-
 function reduceMenuList(list: MenuList): MenuList {
   return list.reduce((a, c) => {
-    a.push(c);
-    if (c.children) {
-      a.push(...c.children);
+    const { children, ...item } = c;
+    a.push(item);
+    if (children) {
+      a.push(...children);
     }
     return a;
-  }, ([] as Array<MenuItem>));
+  }, [] as Array<MenuItem>);
+}
+function mergeRouterMenuList(routerlist: RouterInfo[], menulist: MenuList): MenuList {
+  if (routerlist.length && menulist.length) {
+    let praentList: MenuList = [],
+      childList: MenuList = [];
+    let list = reduceMenuList(menulist);
+    list = list.map((item) => {
+      const find = routerlist.find(
+        (i) => i.path === (item.parentPath || "") + item.path
+      );
+      if (!find) {
+        return item;
+      }
+      const { components, ...any } = find;
+      return { ...any, ...item };
+    });
+    list.forEach((item) => {
+      if (!item.menu_id) {
+        return;
+      }
+      if (item.parentKey) {
+        childList.push(item);
+        return;
+      }
+      praentList.push(item);
+    });
+    childList.forEach((item) => {
+      let find = praentList.find((p) => p.key === item.parentKey);
+      if (!find) {
+        return praentList.push(item);
+      }
+      item.parentPath = find.path;
+      if (find.children) {
+        return find.children.push(item);
+      }
+      find.children = [item];
+    });
+    return praentList;
+  }
+  return [];
 }
 
 function getLocalMenu(): MenuResponse {
@@ -162,7 +193,6 @@ export {
   saveUser,
   sleep,
   getLocalUser,
-  getCurrentUrl,
   getMenuParentKey,
   reduceMenuList,
   getLocalMenu,
@@ -176,5 +206,6 @@ export {
   setLayoutMode,
   clearLocalDatas,
   getCompVisibel,
-  setCompVisibel
+  setCompVisibel,
+  mergeRouterMenuList
 };

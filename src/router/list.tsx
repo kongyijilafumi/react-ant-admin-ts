@@ -3,7 +3,7 @@ import loadable, { LoadableComponent } from "@loadable/component";
 import { Redirect } from "react-router-dom";
 const Error = loadable(() => import("@pages/err"));
 
-type RouterInfo = {
+export type RouterInfo = {
   components: LoadableComponent<any> | React.ReactElement | React.ComponentClass<any>
   [name: string]: any
 }

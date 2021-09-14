@@ -4,7 +4,7 @@ import MenuDnd from "@/components/menu-dnd";
 import MyIcon from "@/components/icon";
 import { withRouter } from "react-router-dom";
 import { filterOpenKey } from "@/store/menu/action";
-import { getCurrentUrl, reduceMenuList } from "@/utils";
+import { reduceMenuList } from "@/utils";
 import { message, Breadcrumb } from "antd";
 import { getMenus } from "@/common";
 import { State, OpenedMenu, Dispatch, MenuItem, MenuList, History } from "@/types"
@@ -14,6 +14,7 @@ type Props = {
   history: History
   childKey: string
   children: ReactNode
+  location: Location
 }
 
 const mapStateToProps = (state: State) => ({
@@ -44,7 +45,7 @@ async function getBreadArray(ckey: string) {
 
 const InitData: MenuItem[] = []
 
-function TopMenu({ openedMenu, filterKey, history, childKey }: Props | any) {
+function TopMenu({ openedMenu, filterKey, history, childKey, location }: Props | any) {
   const [breadArr, setBread] = useState(InitData);
 
   useEffect(() => {
@@ -85,7 +86,7 @@ function TopMenu({ openedMenu, filterKey, history, childKey }: Props | any) {
 
       <div className="top-menu">
         <MenuDnd
-          currentKey={getCurrentUrl()}
+          currentKey={location.pathname + (location.hash || location.search)}
           rangeVal={openedMenu}
           onClose={closeTopMenu}
         />

@@ -1,6 +1,6 @@
 import { Result, Button } from "antd";
 import { connect } from "react-redux";
-import { getDefaultMenu, getCurrentUrl } from "@/utils";
+import { getDefaultMenu, } from "@/utils";
 import { filterOpenKey } from "@/store/menu/action";
 import { State, Dispatch, History } from "@/types"
 const mapStateToProps = (state: State) => ({
@@ -29,16 +29,19 @@ function useErrorPage(props: ErrProps) {
     status = "404",
     errTitle = "404",
     subTitle = "Sorry, the page you visited does not exist.",
+    location
   } = props;
   const back = async () => {
-    const url = getCurrentUrl();
+    const url =
+      location.pathname +
+      (location.hash || location.search);
     // 顶部一个或以下被打开
     if (openMenus.length <= 1) {
       filterOpenKeyFn(url);
       const defaultMenu = await getDefaultMenu();
       if (defaultMenu.openedMenu.length === 0) return history.replace("/");
-      let { path } = defaultMenu.openedMenu[0];
-      history.replace(path);
+      let { parentPath = '', path } = defaultMenu.openedMenu[0];
+      history.replace(parentPath + path);
       return;
     }
     // 从顶部打开的路径，再去跳转

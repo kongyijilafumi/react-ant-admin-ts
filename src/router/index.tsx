@@ -1,40 +1,47 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Route } from "react-router-dom";
 import { CacheRoute, CacheSwitch } from "react-router-cache-route";
-import routerList from "./list";
+import { connect } from "react-redux";
+import { setUserMenu } from "@/store/action";
+import routerList, { RouterInfo } from "./list";
 import Intercept from "./intercept";
 import { getMenus } from "@/common";
-import { reduceMenuList } from "@/utils";
-import { MenuList } from "@/types"
+import { reduceMenuList, mergeRouterMenuList } from "@/utils";
+import { MenuList, Dispatch } from "@/types"
 
-function useRouter() {
-  const [list, setList] = useState<MenuList>([]);
+function useRouter(setMenuList: (list: MenuList) => void) {
+  const [localRouteList, setLocalRouteList] = useState<MenuList>([]);
   const [routerBody, setRoute] = useState<ReactElement[] | null>(null);
-  const [menuList, setMenu] = useState<MenuList>([]);
+  const [mergeRouterList, setMergeList] = useState<RouterInfo[]>([]);
   useEffect(() => {
-    getMenus().then((res) => {
-      let list = reduceMenuList(res.data);
-      let routers = routerList.map((router) => {
-        let find = list.find(
-          (i) => (i.parentPath || "") + i.path === router.path
-        );
-        if (find) {
-          router = { ...find, ...router };
-        } else {
-          router.key = router.path;
+    if (setMenuList && typeof setMenuList === "function") {
+      getMenus().then((res) => {
+        const userMenus = res.data;
+        let list = reduceMenuList(userMenus); // 把 children 数组 提出来 拉平
+        let routers = routerList.map((router) => {
+          let find = list.find(
+            (i) => (i.parentPath || "") + i.path === router.path
+          );
+          if (find) {
+            router = { ...find, ...router };
+          } else {
+            router.key = router.path;
+          }
+          return router;
+        });
+        if (list && list.length) {
+          setMenuList(mergeRouterMenuList(routerList, userMenus));
+          setLocalRouteList(list);
+          setMergeList(routers);
         }
-        return router;
       });
-      if (list && list.length) {
-        setList(routers as unknown as MenuList);
-        setMenu(list);
-      }
-    });
-  }, []);
+    }
+
+  }, [setMenuList]);
 
   useEffect(() => {
-    if (list.length && menuList.length) {
-      const dom = list.map((item) => {
+    if (localRouteList.length && mergeRouterList.length) {
+      const dom = mergeRouterList.map((item) => {
         let { key, path } = item;
         const RenderRoute = item.keepAlive === "true" ? CacheRoute : Route;
         return (
@@ -46,7 +53,7 @@ function useRouter() {
               <Intercept
                 {...allProps}
                 {...item}
-                menuList={menuList}
+                menuList={localRouteList}
                 pageKey={key}
               />
             )}
@@ -55,14 +62,16 @@ function useRouter() {
       });
       setRoute(dom);
     }
-  }, [list, menuList]);
+  }, [localRouteList, mergeRouterList]);
 
   return { routerBody };
 }
 
-const Router = () => {
-  const { routerBody } = useRouter();
+const Router = ({ setMenuList }: { setMenuList: (list: MenuList) => void }) => {
+  const { routerBody } = useRouter(setMenuList);
   return <CacheSwitch>{routerBody}</CacheSwitch>;
 };
-
-export default Router;
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setMenuList: (list: MenuList) => dispatch(setUserMenu(list)),
+});
+export default connect(null, mapDispatchToProps)(Router);

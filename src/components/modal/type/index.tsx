@@ -1,9 +1,28 @@
 import { useEffect, useState } from "react";
-import { Modal, Form, Input, message, Tree } from "antd";
+import { Modal, message, Tree, FormInstance } from "antd";
+import MyForm, { FormItemData } from "@/components/form";
 import { addType, editType } from "@/api";
 import { MenuList } from "@/types";
-const NRule = [{ required: true, message: "请填写权限名称" }];
-
+const initFormItems: FormItemData[] = [
+  {
+    itemType: "input",
+    itemProps: {
+      rules: [{ required: true, message: "请填写权限名称" }],
+      label: "权限名称",
+      name: "name",
+    },
+    childProps: {
+      placeholder: "权限名称",
+    },
+  },
+  {
+    itemType: "input",
+    itemProps: {
+      name: "type_id",
+      hidden: true,
+    },
+  },
+];
 export type Info = { name: string, type: string, menu_id: string } | null
 interface ModalProps {
   info: Info
@@ -17,8 +36,8 @@ const ColorStyle = {
 };
 
 
-export default function UserModal({ info, isShow, onCancel, onOk, menuList }: ModalProps) {
-  const [form] = Form.useForm();
+export default function TypeModal({ info, isShow, onCancel, onOk, menuList }: ModalProps) {
+  const [form, setForm] = useState<FormInstance | null>(null);
   const [menuId, setMenuId] = useState<number[]>([]);
   useEffect(() => {
     if (info && form) {
@@ -28,7 +47,7 @@ export default function UserModal({ info, isShow, onCancel, onOk, menuList }: Mo
     // eslint-disable-next-line
   }, [info]);
   const submit = () => {
-    form.validateFields().then((values) => {
+    form && form.validateFields().then((values) => {
       let fn = Boolean(info) ? editType : addType;
       fn({ ...values, menu_id: menuId }).then((res) => {
         if (res.status === 0) {
@@ -43,7 +62,7 @@ export default function UserModal({ info, isShow, onCancel, onOk, menuList }: Mo
     setMenuId(checked);
   };
   const close = () => {
-    form.resetFields();
+    form && form.resetFields();
     setMenuId([]);
     onCancel(null, false);
   };
@@ -57,14 +76,7 @@ export default function UserModal({ info, isShow, onCancel, onOk, menuList }: Mo
       onCancel={close}
       onOk={submit}
     >
-      <Form form={form}>
-        <Form.Item name="name" rules={NRule} label="权限名称">
-          <Input placeholder="权限名称" />
-        </Form.Item>
-        <Form.Item hidden name="type_id">
-          <Input />
-        </Form.Item>
-      </Form>
+      <MyForm handleInstance={setForm} items={initFormItems} />
       <h3 style={ColorStyle}>选中子菜单未选中父菜单的将不会显示</h3>
       <Tree
         treeData={menuList}

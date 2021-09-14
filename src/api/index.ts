@@ -5,6 +5,7 @@ import { MessageAPi, ResponseData, LoginApi, PowerApi, MenuInfoApi, UserListApi,
 const request = process.env.REACT_APP_MOCK ? mock : ajax;
 
 const getMenu = () => request.get("/getmenu") as Promise<MenuResponse>;
+const getMenuList = () => request.get("/getmenulist") as Promise<MenuResponse>;
 const login = (data: any) => request.post("/login", data) as Promise<LoginApi>;
 const addMenu = (data: any) => request.post("/addmenu", data) as Promise<ResponseData>;
 const addMsg = (data: any) => request.post("/addmessage", data) as Promise<ResponseData>;
@@ -39,4 +40,5 @@ export {
   editUser,
   editType,
   addType,
+  getMenuList
 };

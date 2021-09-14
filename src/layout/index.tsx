@@ -27,4 +27,4 @@ const LayoutContainer = ({ LayoutMode, visibel }: Props) => {
   }
 }
 
-export default connect(mapStateToProps, () =>{})(LayoutContainer);
+export default connect(mapStateToProps, () => ({}))(LayoutContainer);

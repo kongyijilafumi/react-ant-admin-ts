@@ -54,7 +54,7 @@ const LayoutHeader = ({ userInfo, clearStateUser, children }: LayoutHeaderProps)
       setKey(true, USER_INFO, { ...userInfo, isLogin: false });
     }
     saveToken(null);
-    window.location.href = "/";
+    window.location.reload();
     clearStateUser();
   };
   return (

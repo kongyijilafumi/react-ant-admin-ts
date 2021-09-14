@@ -5,6 +5,7 @@ export type MenuAction = {
   key: string
   keys: string[]
   menuItem: OpenedMenu
+  list: MenuItem[]
 }
 
 // 
@@ -18,6 +19,7 @@ export interface MenuState {
   openedMenu: OpenedMenu[]
   openMenuKey: string[]
   selectMenuKey: string[]
+  menuList: MenuItem[]
 }
 
 // 未处理的菜单列表信息
@@ -32,6 +34,8 @@ export interface MenuItem {
   title: string
   children?: MenuList
   parentPath?: string
+  isShowOnMenu?: boolean
+  [key: string]: any
 }
 
 
