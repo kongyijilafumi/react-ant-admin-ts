@@ -1,6 +1,5 @@
 import { getMenus, } from "@/common";
 import { MenuItem, MenuList, UserInfo, LayoutMode, MenuResponse, State } from "@/types"
-import { RouterInfo } from "@/router/list"
 export const USER_INFO = "USER_INFO";
 export const TOKEN = "admin_token";
 export const MENU = "MENU";
@@ -59,79 +58,33 @@ function getLocalUser() {
 }
 
 
-async function getMenuParentKey(key: string): Promise<string | undefined> {
-  let parentKey;
+async function getMenuParentKey(key: string): Promise<string[]> {
+  const keys = [];
   const res = await getMenus();
-  const menuList = res.data
-  menuList.some((menu) => {
-    if (menu.key === key) {
-      parentKey = key;
-      return true;
-    }
-    if (Array.isArray(menu.children) && menu.children.length) {
-      return menu.children.some((child) => {
-        if (child.key === key) {
-          parentKey = child.parentKey;
-          return true;
-        }
-        return false;
-      });
-    }
-    return false;
-  });
-  return parentKey;
-}
-
-
-function reduceMenuList(list: MenuList): MenuList {
-  return list.reduce((a, c) => {
-    const { children, ...item } = c;
-    a.push(item);
-    if (children) {
-      a.push(...children);
-    }
-    return a;
-  }, [] as Array<MenuItem>);
-}
-function mergeRouterMenuList(routerlist: RouterInfo[], menulist: MenuList): MenuList {
-  if (routerlist.length && menulist.length) {
-    let praentList: MenuList = [],
-      childList: MenuList = [];
-    let list = reduceMenuList(menulist);
-    list = list.map((item) => {
-      const find = routerlist.find(
-        (i) => i.path === (item.parentPath || "") + item.path
-      );
-      if (!find) {
-        return item;
-      }
-      const { components, ...any } = find;
-      return { ...any, ...item };
-    });
-    list.forEach((item) => {
-      if (!item.menu_id) {
-        return;
-      }
-      if (item.parentKey) {
-        childList.push(item);
-        return;
-      }
-      praentList.push(item);
-    });
-    childList.forEach((item) => {
-      let find = praentList.find((p) => p.key === item.parentKey);
-      if (!find) {
-        return praentList.push(item);
-      }
-      item.parentPath = find.path;
-      if (find.children) {
-        return find.children.push(item);
-      }
-      find.children = [item];
-    });
-    return praentList;
+  const list = reduceMenuList(res.data);
+  const info = list.find((item) => item.key === key);
+  let parentKey = info?.parentKey;
+  if (parentKey) {
+    const data = await getMenuParentKey(parentKey)
+    keys.push(...data);
+    keys.push(parentKey);
   }
-  return [];
+  return keys;
+}
+
+
+function reduceMenuList(list: MenuList, path: string = ''): MenuList {
+  const data: MenuList = [];
+  list.forEach((i) => {
+    const { children, ...item } = i;
+    item.parentPath = path;
+    if (children) {
+      const childList = reduceMenuList(children, path + i.path);
+      data.push(...childList);
+    }
+    data.push(item);
+  });
+  return data;
 }
 
 function getLocalMenu(): MenuResponse {
@@ -207,5 +160,4 @@ export {
   clearLocalDatas,
   getCompVisibel,
   setCompVisibel,
-  mergeRouterMenuList
 };

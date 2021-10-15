@@ -32,22 +32,15 @@ const mapStateToProps = (state: State) => ({
   layout: state.layout
 });
 
-const renderMenuChild = (item: MenuItem) => {
-  if (item.isShowOnMenu === false) {
-    return null;
-  }
-  return (
-    <Menu.Item key={item.key} icon={<MyIcon type={item.icon} />}>
-      <Link to={(item.parentPath || "") + item.path}>{item.title}</Link>
-    </Menu.Item>
-  );
-};
-const renderMenu = (item: MenuItem) => {
+
+const renderMenu = (item: MenuItem, path: string) => {
   if (item.isShowOnMenu === false) {
     return null;
   }
   if (!item.children) {
-    return renderMenuChild(item);
+    return <Menu.Item key={item.key} icon={<MyIcon type={item.icon} />}>
+      <Link to={path + item.path}>{item.title}</Link>
+    </Menu.Item>
   }
   return (
     <SubMenu
@@ -55,7 +48,7 @@ const renderMenu = (item: MenuItem) => {
       title={item.title}
       icon={<MyIcon type={item.icon} />}
     >
-      {item.children.map(renderMenuChild)}
+      {item.children.map(i => renderMenu(i, path + item.path))}
     </SubMenu>
   );
 };
@@ -101,7 +94,7 @@ const SiderMenu = ({
   };
 
   // 菜单选项
-  const menuComponent = useMemo(() => menuList.map(renderMenu), [menuList]);
+  const menuComponent = useMemo(() => menuList.map(m => renderMenu(m, '')), [menuList]);
   const WrapContainer =
     layout === layoutTypes.SINGLE_COLUMN ? FlexBox : SliderContent;
   return <WrapContainer>

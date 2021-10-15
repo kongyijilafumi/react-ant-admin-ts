@@ -61,9 +61,13 @@ export default function SearchPage() {
   };
 
   // 顶部搜索
-  const search = () => {
+  const search = (isSearch: boolean = false) => {
     let data = searchForm.getFieldsValue();
-    getDataList({ ...pageData, ...data });
+    let params = { ...data };
+    if (!isSearch) {
+      params = { ...params, ...pageData };
+    }
+    getDataList(params);
   };
 
   // 页码改版
@@ -94,7 +98,7 @@ export default function SearchPage() {
             <Form.Item name="description">
               <Input placeholder="输入消息描述词" />
             </Form.Item>
-            <Button onClick={search} type="primary" className="submit-btn">
+            <Button onClick={() => search(true)} type="primary" className="submit-btn">
               搜索
             </Button>
             <Button
