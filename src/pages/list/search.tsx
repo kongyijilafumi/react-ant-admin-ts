@@ -116,6 +116,7 @@ export default function SearchPage() {
           dataSource={tableData}
           columns={tableCol}
           pagination={false}
+          saveKey="MyListSearch"
         />
         <MyPagination
           immediately={getDataList}

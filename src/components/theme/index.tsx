@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { Drawer, Col, Row, message, Button, Radio } from "antd";
+import { Drawer, Col, Row, message, Button, Radio, notification } from "antd";
 import MyIcon from "@/components/icon";
 import Color from "@/components/color";
-import { getKey, setKey } from "@/utils";
+import { getKey, setKey, rmKey } from "@/utils";
 import "./index.less";
 
 interface ThemeData {
@@ -57,8 +57,10 @@ const Themes: ThemeList = [
 ];
 
 
-const THEME_NAME = getKey(true, "theme-name");
-const THEME: ThemeJSON = getKey(true, "theme");
+const THEMENAMEKEY = "theme-name";
+const THEMDATAKEY = "theme-data";
+const THEME_NAME = getKey(true, THEMENAMEKEY);
+const THEME: ThemeJSON = getKey(true, THEMDATAKEY);
 const initSelectInfo = { key: '', value: '', pageX: 0, pageY: 0 }
 
 export default function SetTheme() {
@@ -153,8 +155,8 @@ export default function SetTheme() {
       a[c.key] = c.value;
       return a;
     }, themeObj);
-    setKey(true, "theme-name", themeStyle);
-    setKey(true, "theme", themeObj);
+    setKey(true, THEMENAMEKEY, themeStyle);
+    setKey(true, THEMDATAKEY, themeObj);
     message.success("主题成功保存到本地！");
   }, [themeStyle, colorList]);
 
@@ -171,6 +173,32 @@ export default function SetTheme() {
     },
     [colorList, setTheme]
   );
+  // 删除本地缓存主题
+  const delTheme = () => {
+    if (!getKey(true, THEMENAMEKEY)) {
+      return notification.error({
+        type: "error",
+        description: "未找到本地有配置本地主题，请保存后再点击删除！",
+        message: "删除失败",
+      });
+    }
+    let initColorObj = { ...Themes[0].colorList };
+    process.env.varColors.forEach((item) => {
+      initColorObj[item.key] = item.value;
+    });
+    window.less
+      .modifyVars(initColorObj)
+      .then((res) => {
+        message.success("修改主题色成功");
+        rmKey(true, THEMDATAKEY);
+        rmKey(true, THEMENAMEKEY);
+        setColor(process.env.varColors);
+        setStyle(Themes[0].value);
+      })
+      .catch((err) => {
+        message.error("修改失败");
+      });
+  };
   return (
     <div className="set-theme">
       <div className="icon" onClick={showDrawer}>
@@ -195,7 +223,7 @@ export default function SetTheme() {
         <Row className="color-row primary">自定义Less变量:</Row>
         {colorList.map((i) => (
           <Row className="color-row" justify="space-between" key={i.key}>
-            <Col>{i.title}:</Col>
+            <Col style={{ color: i.value }}>{i.title}:</Col>
             <Col
               className="color-btn"
               onClick={(e) => {
@@ -210,6 +238,9 @@ export default function SetTheme() {
         <Row justify="center">
           <Button type="primary" onClick={saveLocalTheme}>
             保存本地
+          </Button>
+          <Button type="ghost" className="del" danger onClick={delTheme}>
+            删除本地颜色主题配置
           </Button>
         </Row>
         <Color

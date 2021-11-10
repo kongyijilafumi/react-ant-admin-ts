@@ -17,7 +17,7 @@ import {
 } from "react-sortable-hoc";
 import MyIcon from "../icon";
 import arrayMove from "array-move";
-import { getKey, setKey } from "@/utils";
+import { getKey, setKey, rmKey } from "@/utils";
 import "./index.less";
 import { MyTableProps, Columns, renderArugs, Column } from "./types"
 
@@ -125,12 +125,7 @@ function UseTable(columns: Columns, saveKey: MyTableProps["saveKey"]) {
       }));
       setCol(merge);
     } else if (!data && columns && columns.length !== col.length) {
-      const newCol = columns.map((c, index) => ({
-        ...defaultCol,
-        ...c,
-        index,
-      }));
-      setCol(newCol);
+      initDefaultCol()
     }
     // eslint-disable-next-line 
   }, [saveKey, columns]);
@@ -224,6 +219,28 @@ function UseTable(columns: Columns, saveKey: MyTableProps["saveKey"]) {
     setKey(true, saveKey, col);
     message.success("保存设置成功!");
   }
+  // 删除 保存的表格显示
+  const delTbSet = () => {
+    if (!saveKey) {
+      return notification.error({
+        type: "error",
+        description: "你未定义表格的savaKey属性，请定义后在点击删除",
+        message: "删除失败",
+      });
+    }
+    rmKey(true, saveKey);
+    initDefaultCol();
+    message.success("删除成功!");
+  };
+  // 初始化设置表格默认格式
+  function initDefaultCol() {
+    const newCol = columns.map((c, index) => ({
+      ...defaultCol,
+      ...c,
+      index,
+    }));
+    setCol(newCol);
+  }
   return {
     col,
     showDrawer,
@@ -233,6 +250,7 @@ function UseTable(columns: Columns, saveKey: MyTableProps["saveKey"]) {
     DraggableContainer,
     DraggableBodyRow,
     saveTbSet,
+    delTbSet
   };
 }
 
@@ -253,6 +271,7 @@ function MyTable({
     DraggableContainer,
     DraggableBodyRow,
     saveTbSet,
+    delTbSet
   } = UseTable(columns, saveKey);
 
   return (
@@ -295,6 +314,9 @@ function MyTable({
         <Row justify="center" className="mt20">
           <Button type="primary" onClick={saveTbSet}>
             保存此表格设置，下次打开默认启用
+          </Button>
+          <Button danger type="ghost" className="del" onClick={delTbSet}>
+            删除已保存的设置
           </Button>
         </Row>
       </Drawer>

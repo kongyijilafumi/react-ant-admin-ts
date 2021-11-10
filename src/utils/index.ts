@@ -154,6 +154,7 @@ export {
   getToken,
   getKey,
   setKey,
+  rmKey,
   stopPropagation,
   getLayoutMode,
   setLayoutMode,
