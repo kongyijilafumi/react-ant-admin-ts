@@ -1,6 +1,7 @@
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { message, notification } from "antd";
 import { getToken, clearLocalDatas, USER_INFO, TOKEN, MENU } from "@/utils";
+import qs from "qs"
 // 请求地址
 const BASE_URL: string =
   process.env.NODE_ENV === "development"
@@ -97,4 +98,11 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+const rewriteGet = instance.get
+instance.get = function (url: string, data: any) {
+  let query: string = qs.stringify(data, { addQueryPrefix: true });
+  return rewriteGet(url + query)
+}
+
 export default instance;
