@@ -8,7 +8,7 @@ export type MyTableProps = Omit<TableProps<any>, "columns"> & {
 export interface Column extends ColumnType<any> {
   range?: range
   type?: string
-  dataIndex?: string
+  dataIndex: string
   render?: (text: any, record: Column) => React.ReactNode
   [propname: string]: any
 }

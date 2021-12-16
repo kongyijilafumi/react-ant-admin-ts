@@ -119,11 +119,24 @@ function UseTable(columns: Columns, saveKey: MyTableProps["saveKey"]) {
   useEffect(() => {
     const data: Columns = getKey(true, saveKey || '');
     if (saveKey && data && columns && columns.length === data.length) {
-      const merge = data.map((item) => ({
-        ...columns.find((i) => i.dataIndex === item.dataIndex),
-        ...item,
-      }));
-      setCol(merge);
+      const columnInfo: any = {},
+        dataInfo: any = {};
+      columns.forEach((item) => (columnInfo[item.dataIndex] = item));
+      data.forEach((item) => (dataInfo[item.dataIndex] = item));
+      const isSameKey = Array.isArray(data)
+        ? data.every((i) => i.dataIndex === columnInfo[i.dataIndex]?.dataIndex)
+        : false;
+      if (isSameKey) {
+        // 如果当前表格头数据 与 缓存设置的数组长度一样，就优先使用缓存的
+        const merge = data.map((item) => ({
+          ...defaultCol,
+          ...columnInfo[item.dataIndex],
+          ...item,
+        }));
+        setCol(merge);
+      } else {
+        initDefaultCol();
+      }
     } else if (!data && columns && columns.length !== col.length) {
       initDefaultCol()
     }
@@ -137,7 +150,7 @@ function UseTable(columns: Columns, saveKey: MyTableProps["saveKey"]) {
           c.render = (...args: renderArugs) => switchRender(c, ...args);
         }
         if (c.type === "inputNumber") {
-          c.render = (...args) => inuputRender(c.dataIndex ? c.dataIndex : '', ...args);
+          c.render = (...args) => inuputRender(c.dataIndex, ...args);
         }
         return c;
       });
@@ -152,7 +165,7 @@ function UseTable(columns: Columns, saveKey: MyTableProps["saveKey"]) {
         buttonStyle="solid"
         value={text}
         onChange={(e) =>
-          switchChange(column.dataIndex ? column.dataIndex : '', e.target.value, current)
+          switchChange(column.dataIndex, e.target.value, current)
         }
       >
         {column.range &&
@@ -202,10 +215,10 @@ function UseTable(columns: Columns, saveKey: MyTableProps["saveKey"]) {
   }) {
     if (oldIndex !== newIndex) {
       const arr: Array<Columns> = []
-      const newData = arrayMove<Columns>(arr.concat(col), oldIndex, newIndex).filter(
+      const newData = arrayMove(arr.concat(col), oldIndex, newIndex).filter(
         (el) => !!el
       );
-      setCol(newData);
+      setCol(newData as unknown as Columns);
     }
   }
   function saveTbSet() {
