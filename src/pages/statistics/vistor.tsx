@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Row, Col, Card, Progress } from "antd";
 import { getVisitorList, getVisitorData } from "@/api";
 import { Line as LineEchart } from "@/components/echarts";
-import MyPagination from "@/components/pagination";
+import MyPagination, { PageInfo } from "@/components/pagination";
 import MyTable from "@/components/table";
 import "./index.less";
 import { VisitData, MapKey } from "@/types"
@@ -71,7 +71,7 @@ function useVistor() {
   const [dealOpt, setDeal] = useState(getOpt());
   const [sumVisitor, setSumV] = useState(0);
   const [sumDeal, setSumD] = useState(0);
-
+  const [pageInfo, setPage] = useState<PageInfo>({ page: 1 })
   useEffect(() => {
     getVisitorData().then((res) => {
       const { status, data } = res;
@@ -92,6 +92,7 @@ function useVistor() {
   }, []);
 
   const getList = (data: any) => {
+    setPage(data)
     getVisitorList(data).then((res) => {
       const { status, data } = res;
       if (status === 0 && data) {
@@ -111,6 +112,7 @@ function useVistor() {
     tableCol,
     getList,
     total,
+    pageInfo
   };
 }
 
@@ -124,6 +126,7 @@ export default function Vistor() {
     tableCol,
     getList,
     total,
+    pageInfo
   } = useVistor();
   return (
     <div className="vistor-container">
@@ -190,7 +193,7 @@ export default function Vistor() {
         rowKey="s_id"
         pagination={false}
       />
-      <MyPagination change={getList} immediately={getList} total={total} />
+      <MyPagination page={pageInfo.page} change={getList} immediately={getList} total={total} />
     </div>
   );
 }

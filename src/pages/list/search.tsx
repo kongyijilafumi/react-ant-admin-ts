@@ -18,7 +18,7 @@ import { MessageList, MapKey } from "@/types"
 export default function SearchPage() {
   const [form] = Form.useForm();
   const [searchForm] = Form.useForm();
-  const [pageData, setPageData] = useState<PageInfo | undefined>(undefined);
+  const [pageData, setPageData] = useState<PageInfo>({ page: 1 });
   const [tableData, setData] = useState<MessageList>([]);
   const [tableCol, setCol] = useState<MapKey>([]);
   const [load, setLoad] = useState(true);
@@ -61,13 +61,10 @@ export default function SearchPage() {
   };
 
   // 顶部搜索
-  const search = (isSearch: boolean = false) => {
+  const search = () => {
     let data = searchForm.getFieldsValue();
-    let params = { ...data };
-    if (!isSearch) {
-      params = { ...params, ...pageData };
-    }
-    getDataList(params);
+    setPageData({ page: 1 })
+    getDataList(data);
   };
 
   // 页码改版
@@ -98,7 +95,7 @@ export default function SearchPage() {
             <Form.Item name="description">
               <Input placeholder="输入消息描述词" />
             </Form.Item>
-            <Button onClick={() => search(true)} type="primary" className="submit-btn">
+            <Button onClick={search} type="primary" className="submit-btn">
               搜索
             </Button>
             <Button
@@ -119,6 +116,7 @@ export default function SearchPage() {
           saveKey="MyListSearch"
         />
         <MyPagination
+          page={pageData.page}
           immediately={getDataList}
           change={pageChange}
           total={total}

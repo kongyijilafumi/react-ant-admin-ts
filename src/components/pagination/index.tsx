@@ -7,12 +7,12 @@ export type PageInfo = { page: number, pagesize?: number | string }
 
 interface PaginationProps {
   total: number
+  page: number
   change: (p: PageInfo) => void
   immediately?: (p: PageInfo) => void
 }
 
-export default function MyPagination({ total, change, immediately }: PaginationProps) {
-  const [page, setPage] = useState(1);
+export default function MyPagination({ total, page = 1, change, immediately }: PaginationProps) {
   const [pagesize, setSize] = useState<string>(pageSizeOptions[0]);
   useEffect(() => {
     if (typeof immediately === "function") {
@@ -21,7 +21,6 @@ export default function MyPagination({ total, change, immediately }: PaginationP
     // eslint-disable-next-line
   }, []);
   const pageChange = (page: number, pagesize?: number) => {
-    setPage(page);
     setSize(pagesize + '' || pageSizeOptions[0]);
     if (typeof change === "function") {
       change({ page, pagesize });

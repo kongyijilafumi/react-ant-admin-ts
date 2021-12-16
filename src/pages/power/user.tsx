@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Row, Col } from "antd";
-import MyPagination from "@/components/pagination";
+import MyPagination, { PageInfo } from "@/components/pagination";
 import UserModal, { UserID } from "@/components/modal/user";
 import { getUserList } from "@/api";
 import "./index.less";
@@ -13,7 +13,7 @@ export default function User() {
   const [total, setTotal] = useState(0);
   const [showModal, setShow] = useState(false);
   const [chooseId, setId] = useState<UserID>(null);
-  const [pageData, setPage] = useState(null);
+  const [pageData, setPage] = useState<PageInfo>({ page: 1 });
   // 显示弹窗
   const showInfoModal = (id: UserID, type: boolean) => {
     if (id) {
@@ -73,6 +73,7 @@ export default function User() {
         pagination={false}
       />
       <MyPagination
+        page={pageData.page}
         total={total}
         immediately={getUserData}
         change={getUserData}
