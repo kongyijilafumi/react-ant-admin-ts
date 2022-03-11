@@ -26,16 +26,16 @@ interface Props {
   setSelectedKeys: (val: string[]) => void
   addOpenedMenuFn: (val: OpenedMenu) => void
   type: string
-  components: React.SFC<any>
+  components: React.FC<any>
   userInfo: State["user"]
   menuList: MenuList
   [key: string]: any
 }
 
-class Intercept extends React.Component<Props, any> {
+class Intercept extends React.Component<Props, any, any> {
   // eslint-disable-next-line
-  constructor(props: any, context: any) {
-    super(props, context);
+  constructor(props: any) {
+    super(props);
     if (this.props.cacheLifecycles) {
       this.props.cacheLifecycles.didRecover(this.componentDidRecover);
     }
