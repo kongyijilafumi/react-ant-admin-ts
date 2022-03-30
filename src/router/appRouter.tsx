@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter, HashRouter } from "react-router-dom";
 import { Spin } from "antd";
 import Layout from "@/layout";
 import Login from "@pages/login";
 import { connect } from "react-redux";
-import { RouterBasename } from "@/common";
 import { setUserInfoAction } from "@/store/user/action";
 import { getLocalUser } from "@/utils";
 import { State, Dispatch } from "@/types"
+
+const isHash = process.env.REACT_APP_ROUTER_ISHASH === "1"
+const RouterBasename = process.env.REACT_APP_ROUTERBASE || "/"
 
 interface AppRouterProps {
   userInfo: State["user"]
@@ -42,10 +44,15 @@ function AppRouter({ userInfo, setUser }: AppRouterProps) {
       </Spin>
     );
   if (!userInfo) return <Login />;
-  return (
-    <Router basename={RouterBasename}>
+  if (isHash) {
+    return <HashRouter basename={RouterBasename}>
       <Layout />
-    </Router>
+    </HashRouter>
+  }
+  return (
+    <BrowserRouter basename={RouterBasename}>
+      <Layout />
+    </BrowserRouter>
   );
 }
 
