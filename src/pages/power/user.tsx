@@ -88,4 +88,4 @@ export default function User() {
   );
 }
 
-User.route = { path: "/power/user" };
+User.route = { [MENU_PATH]: "/power/user" };

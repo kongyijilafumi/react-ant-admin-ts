@@ -8,13 +8,13 @@ const mapStateToProps = (state: State) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  filterOpenKeyFn: (key: string) => dispatch(filterOpenKey(key)),
+  filterOpenKeyFn: (key: string[]) => dispatch(filterOpenKey(key)),
 });
 
 interface ErrProps {
   openMenus: State["menu"]["openedMenu"]
   history: History
-  filterOpenKeyFn: (key: string) => void
+  filterOpenKeyFn: (key: string[]) => void
   status: 403 | 404 | 500 | '403' | '404' | '500'
   errTitle: string
   subTitle: string
@@ -37,7 +37,7 @@ function useErrorPage(props: ErrProps) {
       (location.hash || location.search);
     // 顶部一个或以下被打开
     if (openMenus.length <= 1) {
-      filterOpenKeyFn(url);
+      filterOpenKeyFn([url]);
       const defaultMenu = await getDefaultMenu();
       if (defaultMenu.openedMenu.length === 0) return history.replace("/");
       let { parentPath = '', path } = defaultMenu.openedMenu[0];
@@ -46,7 +46,7 @@ function useErrorPage(props: ErrProps) {
     }
     // 从顶部打开的路径，再去跳转
     const menuList = openMenus.filter((i) => i.path !== url);
-    filterOpenKeyFn(url);
+    filterOpenKeyFn([url]);
     const next = menuList[menuList.length - 1];
     history.replace(next.path);
   };

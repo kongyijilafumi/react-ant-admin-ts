@@ -15,9 +15,9 @@ export const setSelectKey = (keys: string[]) => ({
   keys,
 });
 
-export const filterOpenKey = (key: string) => ({
+export const filterOpenKey = (keys: string[]) => ({
   type: ActionTypes.FILTER_OPENKEY,
-  key,
+  keys,
 });
 
 export const setUserMenu = (list: MenuItem[]) => ({
@@ -25,3 +25,8 @@ export const setUserMenu = (list: MenuItem[]) => ({
   list,
 });
 
+
+export const setCurrentPath = (path: string) => ({
+  type: ActionTypes.SETCURRENTPATH,
+  path
+})

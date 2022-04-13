@@ -66,4 +66,4 @@ export default function Icons() {
   );
 }
 
-Icons.route = { path: "/icons" };
+Icons.route = { [MENU_PATH]: "/icons" };

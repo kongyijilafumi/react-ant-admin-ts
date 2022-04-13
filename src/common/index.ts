@@ -1,22 +1,26 @@
 import { getLocalMenu, saveLocalMenu } from "../utils";
 import { getMenu } from "@/api";
-import { MenuResponse, MenuList } from "@/types"
-
-function getMenus(): Promise<MenuResponse> {
-  return new Promise((res, rej) => {
+import { MenuResponse } from "@/types"
+let currentJob: Promise<MenuResponse> | null
+export function getMenus() {
+  if (currentJob) {
+    return currentJob
+  }
+  const job: Promise<MenuResponse> = new Promise((reslove) => {
     let localMenu = getLocalMenu();
     if (localMenu) {
-      return res(localMenu);
+      return reslove(localMenu);
     }
     getMenu()
       .then((result) => {
         saveLocalMenu(result);
-        res(result);
+        reslove(result);
       })
       .catch((err) => {
-        res({ data: [] as MenuList, mapKey: [] });
+        reslove([]);
       });
   });
+  currentJob = job
+  job.finally(() => { currentJob = null })
+  return job
 }
-
-export { getMenus, };

@@ -1,5 +1,5 @@
 import { getMenus, } from "@/common";
-import { MenuItem, MenuList, UserInfo, LayoutMode, MenuResponse, State } from "@/types"
+import { MenuItem, MenuList, UserInfo, LayoutMode, MenuResponse, State, MenuMap } from "@/types"
 export const USER_INFO = "USER_INFO";
 export const TOKEN = "admin_token";
 export const MENU = "MENU";
@@ -18,13 +18,12 @@ async function getDefaultMenu(): Promise<MenuOpenData> {
   let openKeys: string[] = [],
     selectKey: string[] = [],
     openedMenu: MenuItem[] = [];
-  const res = await getMenus();
-  const menuList = res.data
+  const menuList = await getMenus();
   menuList.some((list) => {
-    const child = list.children;
+    const child = list[MENU_CHILDREN]
     if (child && child.length) {
-      openKeys = [(list.key as string)];
-      selectKey = [(child[0]["key"] as string)];
+      openKeys = [(list[MENU_KEY] as string)];
+      selectKey = [(child[0][MENU_KEY] as string)];
       openedMenu = [child[0]];
       return true;
     }
@@ -58,18 +57,59 @@ function getLocalUser() {
 }
 
 
-async function getMenuParentKey(key: string): Promise<string[]> {
+function getMenuParentKey(list: MenuList, key: string): string[] {
   const keys = [];
-  const res = await getMenus();
-  const list = reduceMenuList(res.data);
-  const info = list.find((item) => item.key === key);
-  let parentKey = info?.parentKey;
+  const info = list.find((item) => item[MENU_KEY] === key);
+  let parentKey = info?.[MENU_PARENTKEY];
   if (parentKey) {
-    const data = await getMenuParentKey(parentKey)
+    const data = getMenuParentKey(list, parentKey)
     keys.push(...data);
     keys.push(parentKey);
   }
   return keys;
+}
+
+export function formatMenu(list: MenuList) {
+  const newList = list.map(item => ({ ...item }))
+  const menuMap: MenuMap = {};
+  const parentMenu: MenuList = [];
+  newList.forEach((item) => {
+    // 当前 菜单的key
+    const currentKey = item[MENU_KEY];
+    // 当前 菜单的父菜单key
+    const currentParentKey = item[MENU_PARENTKEY];
+    // 如果 映射表还没有值 就把当前项 赋值进去
+    if (!menuMap[currentKey]) {
+      menuMap[currentKey] = item;
+    } else {
+      // 有值 说明 有子项 保留子项 把当前值 赋值进去
+      item[MENU_CHILDREN] = menuMap[currentKey][MENU_CHILDREN];
+      menuMap[currentKey] = item;
+    }
+    // 如果当前项 有父级
+    if (currentParentKey) {
+      // 父级还没有在映射表上
+      if (!menuMap[currentParentKey]) {
+        // 那就把映射上去 只有子集属性<Array>类型
+        menuMap[currentParentKey] = {
+          [MENU_CHILDREN]: [item],
+        };
+      } else if (
+        menuMap[currentParentKey] &&
+        !menuMap[currentParentKey][MENU_CHILDREN]
+      ) {
+        // 父级在映射表上 不过 没子集
+        menuMap[currentParentKey][MENU_CHILDREN] = [item];
+      } else {
+        // 父级有 子集合也有
+        menuMap[currentParentKey][MENU_CHILDREN]?.push(item);
+      }
+    } else {
+      // 当前项是没有父级 那当前项就是父级项
+      parentMenu.push(item);
+    }
+  });
+  return parentMenu;
 }
 
 
@@ -87,7 +127,7 @@ function reduceMenuList(list: MenuList, path: string = ''): MenuList {
   return data;
 }
 
-function getLocalMenu(): MenuResponse {
+function getLocalMenu(): MenuResponse | null {
   return getKey(false, MENU);
 }
 

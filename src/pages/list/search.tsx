@@ -165,5 +165,5 @@ export default function SearchPage() {
   );
 }
 SearchPage.route = {
-  path: "/list/search",
+  [MENU_PATH]: "/list/search",
 };

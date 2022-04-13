@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Route } from "react-router-dom";
 import { CacheRoute, CacheSwitch } from "react-router-cache-route";
 import { connect } from "react-redux";
@@ -6,44 +6,53 @@ import { setUserMenu } from "@/store/action";
 import routerList, { RouterInfo } from "./list";
 import Intercept from "./intercept";
 import { getMenus } from "@/common";
-import { reduceMenuList } from "@/utils";
+import { formatMenu, reduceMenuList } from "@/utils";
 import { MenuList, Dispatch } from "@/types"
 
-function useRouter(setMenuList: (list: MenuList) => void) {
-  const [localRouteList, setLocalRouteList] = useState<MenuList>([]);
-  const [routerBody, setRoute] = useState<ReactElement[] | null>(null);
-  const [mergeRouterList, setMergeList] = useState<RouterInfo[]>([]);
+type setStateMenuListFn = (list: MenuList) => void
+interface RouterProps {
+  setStateMenuList: setStateMenuListFn
+}
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setStateMenuList: (list: MenuList) => dispatch(setUserMenu(list)),
+});
+
+const Router = ({ setStateMenuList }: RouterProps) => {
+  const [mergeRouterList, setMergeList] = useState<RouterInfo[]>([]);// 本地 和 接口返回的路由列表 合并的结果
+  const [ajaxUserMenuList, setAjaxUserMenuList] = useState<MenuList>([]); // 网络请求回来的 路由列表
+
   useEffect(() => {
-    if (setMenuList && typeof setMenuList === "function") {
-      getMenus().then((res) => {
-        const userMenus = res.data;
-        let list = reduceMenuList(userMenus); // 把 children 数组 提出来 拉平
+    if (setStateMenuList && typeof setStateMenuList === "function") {
+      getMenus().then((list) => {
+        const formatList = formatMenu(list)
+        const userMenus = reduceMenuList(formatList);
+        // 把请求的数据 和 本地pages页面暴露出的路由列表合并
         let routers = routerList.map((router) => {
-          let find = list.find(
-            (i) => (i.parentPath || "") + i.path === router.path
-          );
+          let find = userMenus.find((i) => (i[MENU_PARENTPATH] || "") + i[MENU_PATH] === router[MENU_PATH]);
           if (find) {
-            router = { ...find, ...router };
+            router = { ...find, ...router }; // 本地 优先 接口结果
           } else {
-            router.key = router.path;
+            router[MENU_KEY] = router[MENU_PATH];
           }
           return router;
         });
         if (list && list.length) {
-          setMenuList(userMenus);
-          setLocalRouteList(list);
+          setStateMenuList(formatList);
+          setAjaxUserMenuList(userMenus);
           setMergeList(routers);
         }
       });
     }
+  }, [setStateMenuList]);
 
-  }, [setMenuList]);
 
-  useEffect(() => {
-    if (localRouteList.length && mergeRouterList.length) {
-      const dom = mergeRouterList.map((item) => {
-        let { key, path } = item;
-        const RenderRoute = item.keepAlive === "true" ? CacheRoute : Route;
+  const routerBody = useMemo(() => {
+    // 监听 本地路由列表   同时存在长度大于1时 渲染路由组件
+    if (mergeRouterList.length) {
+      return mergeRouterList.map((item) => {
+        let { [MENU_KEY]: key, [MENU_PATH]: path } = item;
+        const RenderRoute = item[MENU_KEEPALIVE] === "true" ? CacheRoute : Route;
         return (
           <RenderRoute
             key={key}
@@ -53,25 +62,17 @@ function useRouter(setMenuList: (list: MenuList) => void) {
               <Intercept
                 {...allProps}
                 {...item}
-                menuList={localRouteList}
+                menuList={ajaxUserMenuList}
                 pageKey={key}
               />
             )}
           />
         );
       });
-      setRoute(dom);
     }
-  }, [localRouteList, mergeRouterList]);
+  }, [ajaxUserMenuList, mergeRouterList])
 
-  return { routerBody };
-}
-
-const Router = ({ setMenuList }: { setMenuList: (list: MenuList) => void }) => {
-  const { routerBody } = useRouter(setMenuList);
   return <CacheSwitch>{routerBody}</CacheSwitch>;
 };
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setMenuList: (list: MenuList) => dispatch(setUserMenu(list)),
-});
+
 export default connect(null, mapDispatchToProps)(Router);

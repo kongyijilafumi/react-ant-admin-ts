@@ -7,10 +7,11 @@ const initGlobalState: MenuState = {
   openMenuKey: [], // 打开的菜单栏的key  用于顶部导航
   selectMenuKey: [], // 选中菜单栏的key  用户侧边栏
   menuList: [],
+  currentPath: "", // 页面当前路径
 };
 
 export default function reducer(state = initGlobalState, action: MenuAction): MenuState {
-  const { type, menuItem, key, keys, list } = action;
+  const { type, menuItem, keys, list, path } = action;
   switch (type) {
     case actionTypes.ADDOPENTMENU: {
       if (menuItem && !state.openedMenu.find((i) => i.path === menuItem.path)) {
@@ -36,7 +37,7 @@ export default function reducer(state = initGlobalState, action: MenuAction): Me
       return { ...state, selectMenuKey: keys };
     }
     case actionTypes.FILTER_OPENKEY: {
-      const openedMenu = state.openedMenu.filter((i) => i.path !== key);
+      const openedMenu = state.openedMenu.filter((i) => !keys.includes(i.path));
       if (state.openedMenu.length === openedMenu.length) {
         return state;
       }
@@ -44,6 +45,9 @@ export default function reducer(state = initGlobalState, action: MenuAction): Me
     }
     case actionTypes.SET_USERMENU: {
       return { ...state, menuList: list };
+    }
+    case actionTypes.SETCURRENTPATH: {
+      return { ...state, currentPath: path }
     }
     default: {
       return state;

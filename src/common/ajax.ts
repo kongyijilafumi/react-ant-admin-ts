@@ -98,9 +98,9 @@ instance.interceptors.response.use(
 );
 
 const rewriteGet = instance.get
-instance.get = function (url: string, data: any) {
+instance.get = function (url: string, data: any, ...any) {
   let query: string = qs.stringify(data, { addQueryPrefix: true });
-  return rewriteGet(url + query)
+  return rewriteGet(url + query, ...any)
 }
 
 export default instance;

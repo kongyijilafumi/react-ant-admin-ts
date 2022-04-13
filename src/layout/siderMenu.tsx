@@ -34,21 +34,21 @@ const mapStateToProps = (state: State) => ({
 
 
 const renderMenu = (item: MenuItem, path: string) => {
-  if (item.isShowOnMenu === false) {
+  if (item[MENU_SHOW] === false) {
     return null;
   }
   if (!item.children) {
-    return <Menu.Item key={item.key} icon={<MyIcon type={item.icon} />}>
-      <Link to={path + item.path}>{item.title}</Link>
+    return <Menu.Item key={item[MENU_KEY]} icon={<MyIcon type={item[MENU_ICON]} />}>
+      <Link to={path + item[MENU_PATH]}>{item[MENU_TITLE]}</Link>
     </Menu.Item>
   }
   return (
     <SubMenu
-      key={item.key}
-      title={item.title}
-      icon={<MyIcon type={item.icon} />}
+      key={item[MENU_KEY]}
+      title={item[MENU_TITLE]}
+      icon={<MyIcon type={item[MENU_ICON]} />}
     >
-      {item.children.map(i => renderMenu(i, path + item.path))}
+      {item.children.map(i => renderMenu(i, path + item[MENU_PATH]))}
     </SubMenu>
   );
 };
@@ -97,15 +97,26 @@ const SiderMenu = ({
   const menuComponent = useMemo(() => menuList.map(m => renderMenu(m, '')), [menuList]);
   const WrapContainer =
     layout === layoutTypes.SINGLE_COLUMN ? FlexBox : SliderContent;
+  // classname
+  const clsName = useMemo(() => {
+    if (layout !== layoutTypes.SINGLE_COLUMN) {
+      return "layout-silder-menu hide-scrollbar"
+    }
+    return "layout-silder-menu col"
+  }, [layout])
+
+  const mode = useMemo(() => {
+    if (layout === layoutTypes.SINGLE_COLUMN) {
+      return "horizontal"
+    }
+    return "inline"
+  }, [layout])
+
   return <WrapContainer>
     <Menu
-      mode={layout === layoutTypes.SINGLE_COLUMN ? "horizontal" : "inline"}
+      mode={mode}
       triggerSubMenuAction="click"
-      className={
-        layout === layoutTypes.SINGLE_COLUMN
-          ? "layout-silder-menu col"
-          : "layout-silder-menu hide-scrollbar"
-      }
+      className={clsName}
       onOpenChange={onOpenChange}
       openKeys={openKeys}
       selectedKeys={selectedKeys}

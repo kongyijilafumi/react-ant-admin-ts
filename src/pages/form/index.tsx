@@ -307,5 +307,5 @@ function RegistrationForm() {
 export default RegistrationForm;
 
 RegistrationForm.route = {
-  path: "/form/index",
+  [MENU_PATH]: "/form/index",
 };

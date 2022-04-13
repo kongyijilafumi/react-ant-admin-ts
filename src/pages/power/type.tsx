@@ -88,7 +88,7 @@ export default function Types() {
   return (
     <div className="type-container">
       <MyTable
-        rowKey="type"
+        rowKey="type_id"
         title={renderTitle}
         columns={tableCol}
         dataSource={tableData}
@@ -104,4 +104,4 @@ export default function Types() {
   );
 }
 
-Types.route = { path: "/power/type" };
+Types.route = { [MENU_PATH]: "/power/type" };

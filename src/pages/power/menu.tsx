@@ -133,5 +133,5 @@ export default function Menu() {
 }
 
 Menu.route = {
-  path: "/power/menu"
+  [MENU_PATH]: "/power/menu"
 }

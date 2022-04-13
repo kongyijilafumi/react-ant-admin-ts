@@ -198,5 +198,5 @@ export default function Vistor() {
   );
 }
 Vistor.route = {
-  path: "/statistics/visitor",
+  [MENU_PATH]: "/statistics/visitor",
 };

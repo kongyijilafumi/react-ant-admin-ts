@@ -13,7 +13,7 @@ const TwoFlanks = ({ visibel }: LayoutModeProps) => {
       <Menu />
       <Layout className="layout-content-wrap reset-padding">
         <Header children={null} />
-        {visibel.topMenu && <TopMenu className="top-menu" />}
+        {visibel.topMenu && <TopMenu />}
         <Content className="layout-content-body">
           <Router />
         </Content>

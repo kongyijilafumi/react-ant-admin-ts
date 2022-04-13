@@ -130,4 +130,4 @@ export default function CardPage() {
     </div>
   );
 }
-CardPage.route = { path: "/list/card" }
+CardPage.route = { [MENU_PATH]: "/list/card" }

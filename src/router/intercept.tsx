@@ -1,5 +1,5 @@
 import React from "react";
-import { addOpenedMenu, setOpenKey, setSelectKey } from "@/store/menu/action";
+import { addOpenedMenu, setCurrentPath, setOpenKey, setSelectKey } from "@/store/menu/action";
 import { connect } from "react-redux";
 import { getMenuParentKey } from "@/utils";
 import Error from "@pages/err";
@@ -14,6 +14,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   addOpenedMenuFn: (val: OpenedMenu) => dispatch(addOpenedMenu(val)),
   setSelectedKeys: (val: string[]) => dispatch(setSelectKey(val)),
   setOpenKeys: (val: string[]) => dispatch(setOpenKey(val)),
+  setPath: (path: string) => dispatch(setCurrentPath(path))
 });
 
 
@@ -29,11 +30,12 @@ interface Props {
   components: React.FC<any>
   userInfo: State["user"]
   menuList: MenuList
+  setPath: (p: string) => void
   [key: string]: any
 }
 
 class Intercept extends React.Component<Props, any, any> {
-  // eslint-disable-next-line
+
   constructor(props: any) {
     super(props);
     if (this.props.cacheLifecycles) {
@@ -44,14 +46,16 @@ class Intercept extends React.Component<Props, any, any> {
     this.setInfo();
     this.scrollToTop();
   }
-  setInfo = async () => {
+  setInfo = () => {
     const {
-      title,
+      [MENU_TITLE]: title,
       pageKey,
       openMenus,
       setOpenKeys,
       setSelectedKeys,
-      location
+      location,
+      menuList,
+      setPath
     } = this.props;
     if (!title) {
       return;
@@ -59,8 +63,9 @@ class Intercept extends React.Component<Props, any, any> {
     document.title = title;
     const pagePath = location.pathname + (location.hash || location.search);
     const findInfo = openMenus.find((i) => i.path === pagePath);
-    setSelectedKeys([pageKey]);
-    let openkey = await getMenuParentKey(pageKey);
+    setPath(pagePath)
+    setSelectedKeys([String(pageKey)]);
+    let openkey = getMenuParentKey(menuList, pageKey);
     setOpenKeys(openkey);
     this.addMenus(findInfo, pageKey, pagePath, title);
   };
@@ -103,13 +108,13 @@ class Intercept extends React.Component<Props, any, any> {
       setOpenKeys,
       setSelectedKeys,
       addOpenedMenuFn,
+      setPath,
       components: Components,
       menuList,
       ...itemProps
     } = this.props;
-    const hasPath = !menuList.find(
-      (m) => (m.parentPath || "") + m.path === path
-    );
+    const hasPath = !menuList.find((m) => (m[MENU_PARENTPATH] || "") + m[MENU_PATH] === path);
+
     if (hasPath && path !== "/" && path !== "*") {
       return (
         <Error
