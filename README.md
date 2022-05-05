@@ -36,6 +36,8 @@ nodejs 后台 web 服务:[react-ant-admin-server](https://gitee.com/kong_yiji_an
 
 [react-ant-admin 文档地址](https://azhengpersonalblog.top/doc-react-ant-admin/)
 
+## [接口文档地址](https://www.apifox.cn/apidoc/shared-9f3c246d-7ca8-4ef9-be4a-2802b68b93bb)
+
 更多建议欢迎骚扰~
 
 [qq 交流群:532948540](https://qm.qq.com/cgi-bin/qm/qr?k=Wo_kXUOA-mTBviZ6gF4H912AKdE5vTML&jump_from=webapi)
