@@ -1,20 +1,12 @@
 import { Result, Button } from "antd";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getDefaultMenu, } from "@/utils";
 import { filterOpenKey } from "@/store/menu/action";
-import { State, Dispatch, History } from "@/types"
-const mapStateToProps = (state: State) => ({
-  openMenus: state.menu.openedMenu,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  filterOpenKeyFn: (key: string[]) => dispatch(filterOpenKey(key)),
-});
+import { getOpenedMenu } from "@/store/getters";
+import { useHistory } from "react-router-dom";
+import { useCallback } from "react";
 
 interface ErrProps {
-  openMenus: State["menu"]["openedMenu"]
-  history: History
-  filterOpenKeyFn: (key: string[]) => void
   status: 403 | 404 | 500 | '403' | '404' | '500'
   errTitle: string
   subTitle: string
@@ -23,37 +15,38 @@ interface ErrProps {
 
 function useErrorPage(props: ErrProps) {
   const {
-    openMenus,
-    history,
-    filterOpenKeyFn,
+
     status = "404",
     errTitle = "404",
     subTitle = "Sorry, the page you visited does not exist.",
-    location
   } = props;
-  const back = async () => {
+  const openedMenu = useSelector(getOpenedMenu)
+  const dispatch = useDispatch()
+  const history = useHistory()
+  const filterOpenKeyFn = useCallback((key) => dispatch(filterOpenKey(key)), [dispatch])
+  const back = useCallback(async () => {
     const url =
-      location.pathname +
-      (location.hash || location.search);
+      history.location.pathname +
+      (history.location.hash || history.location.search);
     // 顶部一个或以下被打开
-    if (openMenus.length <= 1) {
+    if (openedMenu.length <= 1) {
       filterOpenKeyFn([url]);
       const defaultMenu = await getDefaultMenu();
       if (defaultMenu.openedMenu.length === 0) return history.replace("/");
-      let { parentPath = '', path } = defaultMenu.openedMenu[0];
+      let { parentPath, path } = defaultMenu.openedMenu[0];
       history.replace(parentPath + path);
       return;
     }
     // 从顶部打开的路径，再去跳转
-    const menuList = openMenus.filter((i) => i.path !== url);
+    const menuList = openedMenu.filter((i) => i.path !== url);
     filterOpenKeyFn([url]);
     const next = menuList[menuList.length - 1];
     history.replace(next.path);
-  };
+  }, [history, openedMenu, filterOpenKeyFn])
   return { status, errTitle, subTitle, back };
 }
 
-function ErrorPage(props: ErrProps) {
+export default function ErrorPage(props: ErrProps) {
   const { status, errTitle, subTitle, back } = useErrorPage(props);
   return (
     <Result
@@ -68,5 +61,3 @@ function ErrorPage(props: ErrProps) {
     />
   );
 }
-
-export default connect(mapStateToProps, mapDispatchToProps)(ErrorPage);

@@ -1,132 +1,98 @@
-import React from "react";
-import { addOpenedMenu, setCurrentPath, setOpenKey, setSelectKey } from "@/store/menu/action";
-import { connect } from "react-redux";
+import { useCallback, useEffect } from "react";
+import { addOpenedMenu, setOpenKey, setSelectKey, setCurrentPath } from "@/store/menu/action";
+import { useDispatch, useSelector } from "react-redux";
 import { getMenuParentKey } from "@/utils";
+import { useDidRecover } from "react-router-cache-route"
 import Error from "@pages/err";
-import { OpenedMenu, State, Dispatch, MenuList } from "@/types";
 import { Spin } from "antd";
-
-const mapStateToProps = (state: State) => ({
-  openMenus: state.menu.openedMenu,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addOpenedMenuFn: (val: OpenedMenu) => dispatch(addOpenedMenu(val)),
-  setSelectedKeys: (val: string[]) => dispatch(setSelectKey(val)),
-  setOpenKeys: (val: string[]) => dispatch(setOpenKey(val)),
-  setPath: (path: string) => dispatch(setCurrentPath(path))
-});
+import { getOpenedMenu } from "@/store/getters";
+import { useHistory } from "react-router-dom";
+import { MenuItem } from "@/types";
 
 
 interface Props {
-  path: string
-  title: string
+  [MENU_PATH]?: string
+  [MENU_TITLE]?: string
   pageKey: string
-  openMenus: State["menu"]["openedMenu"]
-  setOpenKeys: (val: string[]) => void
-  setSelectedKeys: (val: string[]) => void
-  addOpenedMenuFn: (val: OpenedMenu) => void
-  type: string
-  components: React.FC<any>
-  userInfo: State["user"]
-  menuList: MenuList
-  setPath: (p: string) => void
+  menuList: Array<MenuItem>
   [key: string]: any
 }
 
-class Intercept extends React.Component<Props, any, any> {
+const fallback = <Spin style={{
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 500,
+  fontSize: 24,
+}} tip="页面加载中...." />
 
-  constructor(props: any) {
-    super(props);
-    if (this.props.cacheLifecycles) {
-      this.props.cacheLifecycles.didRecover(this.componentDidRecover);
-    }
-  }
-  componentDidMount() {
-    this.setInfo();
-    this.scrollToTop();
-  }
-  setInfo = () => {
-    const {
-      [MENU_TITLE]: title,
-      pageKey,
-      openMenus,
-      setOpenKeys,
-      setSelectedKeys,
-      location,
-      menuList,
-      setPath
-    } = this.props;
-    if (!title) {
-      return;
-    }
-    document.title = title;
-    const pagePath = location.pathname + (location.hash || location.search);
-    const findInfo = openMenus.find((i) => i.path === pagePath);
-    setPath(pagePath)
-    setSelectedKeys([String(pageKey)]);
-    let openkey = getMenuParentKey(menuList, pageKey);
-    setOpenKeys(openkey);
-    this.addMenus(findInfo, pageKey, pagePath, title);
-  };
-  //
-  componentDidRecover = () => {
-    this.setInfo();
-    this.scrollToTop();
-  };
+function Intercept({ menuList, components: Components, [MENU_TITLE]: title, [MENU_PATH]: pagePath, pageKey, ...itemProps }: Props) {
+  const history = useHistory()
+  const openMenu = useSelector(getOpenedMenu)
+  const dispatch = useDispatch()
+  const setPath = useCallback((path) => dispatch(setCurrentPath(path)), [dispatch])
+  const setOpenKeys = useCallback((val) => dispatch(setOpenKey(val)), [dispatch])
+  const setSelectedKeys = useCallback((val) => dispatch(setSelectKey(val)), [dispatch])
+  const addOpenedMenuFn = useCallback((val) => dispatch(addOpenedMenu(val)), [dispatch])
 
-  scrollToTop = () => {
+  const pushMenu = useCallback((info, key, path, title) => {
+    if (!info) {
+      addOpenedMenuFn({ key, path, title })
+    }
+  }, [addOpenedMenuFn])
+
+  const scrollPage = useCallback(() => {
     window.scrollTo({
       top: 0,
       left: 0,
       behavior: "smooth",
     });
-  };
+  }, [])
 
-  addMenus = (info: OpenedMenu | undefined, key: string, path: string, title: string) => {
-    if (!info) {
-      this.props.addOpenedMenuFn({
-        key,
-        path,
-        title,
-      });
+  const setInfo = useCallback(() => {
+    if (!title) {
+      return;
     }
-  };
-  fellbackStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 500,
-    fontSize: 24,
-  };
-  render() {
-    const {
-      path,
-      title,
-      pageKey,
-      openMenus,
-      setOpenKeys,
-      setSelectedKeys,
-      addOpenedMenuFn,
-      setPath,
-      components: Components,
-      menuList,
-      ...itemProps
-    } = this.props;
-    const hasPath = !menuList.find((m) => (m[MENU_PARENTPATH] || "") + m[MENU_PATH] === path);
+    const { pathname, hash, search } = history.location
+    document.title = title;
+    const pagePath = pathname + (hash || search);
+    const findInfo = openMenu.find((i) => i.path === pagePath);
+    setPath(pagePath)
+    setSelectedKeys([String(pageKey)]);
+    let openkey = getMenuParentKey(menuList, pageKey);
+    setOpenKeys(openkey);
+    pushMenu(findInfo, pageKey, pagePath, title);
+  }, [history, openMenu, menuList, title, pageKey, setOpenKeys, setPath, setSelectedKeys, pushMenu])
 
-    if (hasPath && path !== "/" && path !== "*") {
-      return (
-        <Error
-          {...itemProps}
-          status="403"
-          errTitle="权限不够"
-          subTitle="Sorry, you are not authorized to access this page."
-        />
-      );
-    }
-    return <Components {...itemProps} fallback={<Spin style={this.fellbackStyle} tip="页面加载中...." />} />;
+  const init = useCallback(() => {
+    setInfo()
+    scrollPage()
+  }, [setInfo, scrollPage])
+
+  useEffect(init, [init])
+
+  useDidRecover(init, [init])
+
+  const hasPath = !menuList.find(
+    (m) => (m[MENU_PARENTPATH] || "") + m[MENU_PATH] === pagePath
+  );
+
+  if (hasPath && pagePath !== "/" && pagePath !== "*") {
+    return (
+      <Error
+        {...itemProps}
+        status="403"
+        errTitle="权限不够"
+        subTitle="Sorry, you are not authorized to access this page."
+      />
+    );
   }
-}
 
-export default connect(mapStateToProps, mapDispatchToProps)(Intercept);
+  return (
+    <Components
+      {...itemProps}
+      fallback={fallback}
+    />
+  );
+}
+export default Intercept

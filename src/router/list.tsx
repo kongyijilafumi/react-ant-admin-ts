@@ -1,6 +1,7 @@
 import auto from "./auto";
 import loadable, { LoadableComponent } from "@loadable/component";
 import { Redirect } from "react-router-dom";
+import React from "react";
 const Error = loadable(() => import("@pages/err"));
 
 export interface RouterInfo {
@@ -46,7 +47,7 @@ const defaultArr: RouterInfo[] = [
   },
 ];
 
-const list: RouterInfo[] = auto.map((c) => ({ ...c, components: loadable(c.components) }));
+const list: RouterInfo[] = auto.map((c: any) => ({ ...c, components: loadable(c.components) }) as RouterInfo);
 
 list.push(...defaultArr);
 

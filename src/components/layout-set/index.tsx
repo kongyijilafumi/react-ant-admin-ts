@@ -1,23 +1,16 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import MyIcon from "../icon";
 import { Button, Drawer, message, Row, Radio } from "antd";
-import { connect } from "react-redux";
-import { changeLayoutMode } from "@/store/layout/action";
-import { setVisible } from "@/store/visibel/action";
-import * as Types from "../../store/layout/actionTypes";
-import { setLayoutMode, setCompVisibel as util_setCompVisibel } from "@/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { setVisible as stateSetVisibel, changeLayoutMode } from "@/store/action";
+import * as Types from "@/store/layout/actionTypes";
+import { setLayoutMode, setCompVisibel as util_setCompVisibel, getLayoutMode } from "@/utils";
 import singImg from "@/assets/images/layout2.jpg";
 import twoImg from "@/assets/images/layout1.jpg";
 import twoFlanksImg from "@/assets/images/layout3.jpg";
-import { Dispatch, LayoutMode, State, LayoutModes } from "@/types"
+import { LayoutMode, State, LayoutModes } from "@/types"
 import "./index.less";
-
-interface LayoutSetProps {
-  setMode: (s: LayoutMode) => void
-  layoutMode: LayoutMode
-  componentsVisible: State["componentsVisible"]
-  setCompVisible: (k: keyof State["componentsVisible"], val: boolean) => void
-}
+import { getComponentsVisible } from "@/store/getters";
 
 const modes: LayoutModes = [
   {
@@ -46,37 +39,26 @@ const RadioArray = [
     v: false,
   },
 ];
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setMode: (mode: LayoutMode) => dispatch(changeLayoutMode(mode)),
-  setCompVisible: (key: keyof State["componentsVisible"], val: boolean) => dispatch(setVisible(key, val)),
-});
-const mapStateToProps = (state: State) => ({
-  layoutMode: state.layout,
-  componentsVisible: state.componentsVisible,
-});
 
-
-
-function useLayoutSet({ setMode, layoutMode, componentsVisible }: LayoutSetProps) {
+function LayoutSet() {
   const [visible, setVisible] = useState(false);
-  const wakeup = () => setVisible(true);
-  const onClose = () => setVisible(false);
-  const setLayout = (mode: LayoutMode) => {
-    setMode(mode);
-    message.success("布局设置成功！");
-  };
-  const saveLayout = () => {
-    setLayoutMode(layoutMode);
+  const dispatch = useDispatch()
+  const componentsVisible = useSelector(getComponentsVisible)
+  const layoutMode = useSelector(getLayoutMode)
+
+  const setMode = useCallback((mode) => dispatch(changeLayoutMode(mode)), [dispatch])
+
+  const wakeup = useCallback(() => setVisible(true), []);
+  const onClose = useCallback(() => setVisible(false), []);
+  const saveLayout = useCallback(() => {
+    setLayoutMode(layoutMode as LayoutMode);
     util_setCompVisibel(componentsVisible);
     message.success("布局保存本地成功！");
-  };
-  return { wakeup, visible, onClose, setLayout, saveLayout };
-}
-
-function LayoutSet(props: LayoutSetProps) {
-  const { wakeup, visible, onClose, setLayout, saveLayout } =
-    useLayoutSet(props);
-  const { componentsVisible, setCompVisible } = props;
+  }, [layoutMode, componentsVisible]);
+  const setLayout = useCallback((mode) => {
+    setMode(mode);
+    message.success("布局设置成功！");
+  }, [setMode]);
   return (
     <div className="layoutset-container">
       <MyIcon type="icon_setting" onClick={wakeup} />
@@ -95,9 +77,9 @@ function LayoutSet(props: LayoutSetProps) {
             <div
               key={m.mode}
               onClick={() => setLayout(m.mode)}
-              className={m.mode === props.layoutMode ? "col active" : "col"}
+              className={m.mode === layoutMode ? "col active" : "col"}
             >
-              <img src={m.img} alt={m.alt + m.mode + props.layoutMode}></img>
+              <img src={m.img} alt={m.alt + m.mode + layoutMode}></img>
             </div>
           ))}
         </Row>
@@ -106,7 +88,7 @@ function LayoutSet(props: LayoutSetProps) {
           <Row key={key} className="visibel-list">
             {key === "footer" ? "底部：" : "顶部切换导航："}
             <Radio.Group
-              onChange={(e) => setCompVisible(key as keyof State["componentsVisible"], e.target.value)}
+              onChange={(e) => dispatch(stateSetVisibel(key as keyof State["componentsVisible"], e.target.value))}
               value={componentsVisible[key as keyof State["componentsVisible"]]}
             >
               {RadioArray.map((i) => (
@@ -127,4 +109,4 @@ function LayoutSet(props: LayoutSetProps) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LayoutSet);
+export default LayoutSet;

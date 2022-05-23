@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import MyIcon from "@/components/icon";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Link, RouteComponentProps, withRouter } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import "./index.less";
-import { OpenedMenu, State, Dispatch, History } from "@/types"
-import { connect } from "react-redux";
+import { OpenedMenu, } from "@/types"
+import { useDispatch, useSelector } from "react-redux";
 import { filterOpenKey } from "@/store/action";
 import { message } from "antd";
 import ContextMenu from "../contextMenu";
+import { getCurrentPath, getOpenedMenu } from "@/store/getters";
 // 重新记录数组顺序
 const reorder = (list: OpenedMenu[], startIndex: number, endIndex: number) => {
   const result = Array.from(list);
@@ -17,18 +18,19 @@ const reorder = (list: OpenedMenu[], startIndex: number, endIndex: number) => {
   result.splice(endIndex, 0, removed);
   return result;
 };
-interface DndProps extends RouteComponentProps {
-  openedMenu: OpenedMenu[]
-  history: History
-  filterOpenMenu: (m: string[]) => void
-  currentPath: string
-}
 
-function MenuDnd({ openedMenu, history, filterOpenMenu, currentPath }: DndProps) {
+export default function MenuDnd() {
+  const history = useHistory();
   const [data, setData] = useState<OpenedMenu[]>([]);
   const [contextMenuVisible, setVisible] = useState(false)
   const [currentItem, setCurrentItem] = useState<OpenedMenu | null>(null)
   const [point, setPoint] = useState({ x: 0, y: 0 })
+
+  // state
+  const dispatch = useDispatch()
+  const openedMenu = useSelector(getOpenedMenu)
+  const currentPath = useSelector(getCurrentPath)
+  const filterOpenMenu = useCallback((key) => dispatch(filterOpenKey(key)), [dispatch])
 
   // 根据 选中的菜单 往里添加拖拽选项
   useEffect(() => {
@@ -208,12 +210,3 @@ function MenuDnd({ openedMenu, history, filterOpenMenu, currentPath }: DndProps)
     />
   </>);
 }
-
-const mapStateToProps = (state: State) => ({
-  openedMenu: state.menu.openedMenu,
-  currentPath: state.menu.currentPath
-})
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  filterOpenMenu: (key: string[]) => dispatch(filterOpenKey(key)),
-});
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(MenuDnd));

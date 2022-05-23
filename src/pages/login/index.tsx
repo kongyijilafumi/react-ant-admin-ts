@@ -1,20 +1,20 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Form, Input, Button, Checkbox, message } from "antd";
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 import MyIcon from "@/components/icon";
 import { saveUser, getLocalUser, saveToken } from "@/utils";
 import { setUserInfoAction } from "@/store/user/action";
 import { login } from "@/api";
-import { UserInfo, Dispatch } from "@/types"
+import { UserInfo } from "@/types"
 import "./index.less";
 
-interface LoginProps {
-  setUserInfo: (info: UserInfo) => void
-}
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setUserInfo: (info: UserInfo) => dispatch(setUserInfoAction(info)),
-});
+
+
+const initialValues = {
+  remember: true,
+  ...getLocalUser(),
+}
 
 const IPT_RULE_USERNAME = [
   {
@@ -30,7 +30,7 @@ const IPT_RULE_PASSWORD = [
   },
 ];
 
-function useLogin(setUserInfo: LoginProps["setUserInfo"]) {
+function useLogin(setUserInfo: (info: UserInfo) => void) {
   const [btnLoad, setBtnLoad] = useState(false);
   const onFinish = (values: any) => {
     setBtnLoad(true);
@@ -54,7 +54,9 @@ function useLogin(setUserInfo: LoginProps["setUserInfo"]) {
   return { btnLoad, onFinish };
 }
 
-function Login({ setUserInfo }: LoginProps) {
+export default function Login() {
+  const dispatch = useDispatch()
+  const setUserInfo = useCallback((info) => dispatch(setUserInfoAction(info)), [dispatch])
   const { btnLoad, onFinish } = useLogin(setUserInfo);
   return (
     <div className="login-container">
@@ -63,10 +65,7 @@ function Login({ setUserInfo }: LoginProps) {
         <div className="welcome">欢迎使用，请先登录</div>
         <Form
           className="login-form"
-          initialValues={{
-            remember: true,
-            ...getLocalUser(),
-          }}
+          initialValues={initialValues}
           onFinish={onFinish}
         >
           <Form.Item name="account" rules={IPT_RULE_USERNAME}>
@@ -104,5 +103,3 @@ function Login({ setUserInfo }: LoginProps) {
     </div>
   );
 }
-
-export default connect(null, mapDispatchToProps)(Login);
