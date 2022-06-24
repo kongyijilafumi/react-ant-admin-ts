@@ -39,7 +39,7 @@ function useLogin(setUserInfo: (info: UserInfo) => void) {
         const { data, msg, status, token } = res;
         setBtnLoad(false);
         if (status === 1 && !data) return;
-        const info = Object.assign(data, { isLogin: true })
+        const info = Object.assign({ isLogin: true }, data)
         saveToken(token);
         message.success(msg);
         if (values.remember) {
