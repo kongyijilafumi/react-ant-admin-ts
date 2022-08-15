@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import MenuDnd from "@/components/menu-dnd";
 import MyIcon from "@/components/icon";
 import { reduceMenuList } from "@/utils";
 import { Breadcrumb } from "antd";
 import { getMenus } from "@/common";
 import { MenuItem, MenuList } from "@/types"
-import { getSelectMenuKey } from "@/store/getters";
+import { useStateSelectMenuKey } from "@/store/hooks";
 
 
 
@@ -32,7 +31,7 @@ async function getBreadArray(ckey: string) {
 
 export default function TopMenu() {
   const [breadArr, setBread] = useState<Array<MenuItem>>([]);
-  const selectMenuKey = useSelector(getSelectMenuKey)
+  const selectMenuKey = useStateSelectMenuKey()
   useEffect(() => {
     async function get() {
       let data = await getBreadArray(selectMenuKey[0]);

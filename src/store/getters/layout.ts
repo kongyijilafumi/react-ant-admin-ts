@@ -1,3 +1,3 @@
-import { State } from "@/types"
+import { State } from "@/types";
 
-export const getLayoutMode = (state: State) => state.layout
+export const getStateLayout = (state: State) => state.layout

@@ -1,13 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout, Menu, Button, Affix, Col } from "antd";
 import MyIcon from "@/components/icon";
-import { setOpenKey } from "@/store/action";
-import { getLayoutMode, stopPropagation } from "@/utils";
+import { stopPropagation } from "@/utils";
 import { MenuItem } from "@/types"
 import * as layoutTypes from "@/store/layout/actionTypes";
-import { getOpenMenuKey, getSelectMenuKey, getMenuList } from "@/store/getters";
+import { useDispatchMenu, useStateLayout, useStateMenuList, useStateOpenMenuKey, useStateSelectMenuKey } from "@/store/hooks";
 
 
 
@@ -64,18 +62,17 @@ const SliderContent = ({ children }: { children: JSX.Element }) => {
   );
 };
 export default function SiderMenu() {
-  const openMenuKey = useSelector(getOpenMenuKey)
-  const menuList = useSelector(getMenuList)
-  const layout = useSelector(getLayoutMode)
-  const selectMenuKey = useSelector(getSelectMenuKey)
-  const menuComponent = useMemo(() => menuList && menuList.map((i) => renderMenu(i, "")), [menuList]);
-  const dispatch = useDispatch()
-
-  // 菜单组折叠
-  const onOpenChange = useCallback((keys) => dispatch(setOpenKey(keys)), [dispatch]);
+  const openKeys = useStateOpenMenuKey()
+  const selectedKeys = useStateSelectMenuKey()
+  const layout = useStateLayout()
+  const menuList = useStateMenuList()
+  // 菜单组折叠  
+  const { stateSetOpenMenuKey: onOpenChange } = useDispatchMenu()
   // 菜单选项
-  const WrapContainer =
-    layout === layoutTypes.SINGLE_COLUMN ? FlexBox : SliderContent;
+  const menuComponent = useMemo(() => menuList.map(m => renderMenu(m, '')), [menuList]);
+
+  const WrapContainer = useMemo(() => layout === layoutTypes.SINGLE_COLUMN ? FlexBox : SliderContent, [layout])
+
   // classname
   const clsName = useMemo(() => {
     if (layout !== layoutTypes.SINGLE_COLUMN) {
@@ -97,8 +94,8 @@ export default function SiderMenu() {
       triggerSubMenuAction="click"
       className={clsName}
       onOpenChange={onOpenChange}
-      openKeys={openMenuKey}
-      selectedKeys={selectMenuKey}
+      openKeys={openKeys}
+      selectedKeys={selectedKeys}
       children={menuComponent}
     />
   </WrapContainer>;

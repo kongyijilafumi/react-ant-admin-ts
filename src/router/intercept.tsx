@@ -1,21 +1,17 @@
-import { useCallback, useEffect } from "react";
-import { addOpenedMenu, setOpenKey, setSelectKey, setCurrentPath } from "@/store/menu/action";
-import { useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Spin } from "antd"
 import { getMenuParentKey } from "@/utils";
-import { useDidRecover } from "react-router-cache-route"
-import Error from "@pages/err";
-import { Spin } from "antd";
-import { getOpenedMenu } from "@/store/getters";
-import { useHistory } from "react-router-dom";
+import Error from "@/pages/err";
+import { useLocation } from "react-router-dom";
 import { MenuItem } from "@/types";
+import { useDispatchMenu } from "@/store/hooks";
 
-
-interface Props {
-  [MENU_PATH]?: string
-  [MENU_TITLE]?: string
-  pageKey: string
-  menuList: Array<MenuItem>
-  [key: string]: any
+const scrollPage = () => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "smooth",
+  });
 }
 
 const fallback = <Spin style={{
@@ -26,52 +22,59 @@ const fallback = <Spin style={{
   fontSize: 24,
 }} tip="页面加载中...." />
 
+interface Props {
+  [MENU_PATH]?: string
+  [MENU_TITLE]?: string
+  pageKey: string
+  menuList: Array<MenuItem>
+  [key: string]: any
+}
+
 function Intercept({ menuList, components: Components, [MENU_TITLE]: title, [MENU_PATH]: pagePath, pageKey, ...itemProps }: Props) {
-  const history = useHistory()
-  const openMenu = useSelector(getOpenedMenu)
-  const dispatch = useDispatch()
-  const setPath = useCallback((path) => dispatch(setCurrentPath(path)), [dispatch])
-  const setOpenKeys = useCallback((val) => dispatch(setOpenKey(val)), [dispatch])
-  const setSelectedKeys = useCallback((val) => dispatch(setSelectKey(val)), [dispatch])
-  const addOpenedMenuFn = useCallback((val) => dispatch(addOpenedMenu(val)), [dispatch])
+  const [pageInit, setPageInit] = useState(false)
+  const location = useLocation()
+  const { stateSetOpenMenuKey, stateSetSelectMenuKey, stateAddOpenedMenu, stateSetCurrentPath } = useDispatchMenu()
 
-  const pushMenu = useCallback((info, key, path, title) => {
-    if (!info) {
-      addOpenedMenuFn({ key, path, title })
-    }
-  }, [addOpenedMenuFn])
+  const currentPath = useMemo(() => {
+    const { pathname, search } = location
+    return pathname + search
+  }, [location])
 
-  const scrollPage = useCallback(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "smooth",
-    });
-  }, [])
+  // 监听 location 改变
+  const onPathChange = useCallback(() => {
+    stateSetCurrentPath(currentPath)
+    stateAddOpenedMenu({ key: pageKey, path: currentPath, title: title || "未设置标题信息" });
+  }, [currentPath, pageKey, title, stateSetCurrentPath, stateAddOpenedMenu])
 
-  const setInfo = useCallback(() => {
+  const setCurrentPageInfo = useCallback(() => {
     if (!title) {
       return;
     }
-    const { pathname, hash, search } = history.location
     document.title = title;
-    const pagePath = pathname + (hash || search);
-    const findInfo = openMenu.find((i) => i.path === pagePath);
-    setPath(pagePath)
-    setSelectedKeys([String(pageKey)]);
+    stateSetSelectMenuKey([String(pageKey)]);
     let openkey = getMenuParentKey(menuList, pageKey);
-    setOpenKeys(openkey);
-    pushMenu(findInfo, pageKey, pagePath, title);
-  }, [history, openMenu, menuList, title, pageKey, setOpenKeys, setPath, setSelectedKeys, pushMenu])
+    stateSetOpenMenuKey(openkey);
+    stateAddOpenedMenu({ key: pageKey, path: currentPath, title });
+  }, [currentPath, menuList, title, pageKey, stateSetOpenMenuKey, stateSetSelectMenuKey, stateAddOpenedMenu])
 
   const init = useCallback(() => {
-    setInfo()
+    setCurrentPageInfo()
     scrollPage()
-  }, [setInfo, scrollPage])
+  }, [setCurrentPageInfo])
 
-  useEffect(init, [init])
+  useEffect(() => {
+    if (init && !pageInit) {
+      init()
+      setPageInit(true)
+    }
+  }, [init, pageInit])
 
-  useDidRecover(init, [init])
+  useEffect(() => {
+    if (pageInit) {
+      onPathChange()
+    }
+  }, [onPathChange, pageInit])
+
 
   const hasPath = !menuList.find(
     (m) => (m[MENU_PARENTPATH] || "") + m[MENU_PATH] === pagePath
@@ -80,7 +83,6 @@ function Intercept({ menuList, components: Components, [MENU_TITLE]: title, [MEN
   if (hasPath && pagePath !== "/" && pagePath !== "*") {
     return (
       <Error
-        {...itemProps}
         status="403"
         errTitle="权限不够"
         subTitle="Sorry, you are not authorized to access this page."

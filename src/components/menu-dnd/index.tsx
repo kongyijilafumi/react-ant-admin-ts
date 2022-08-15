@@ -3,12 +3,10 @@ import MyIcon from "@/components/icon";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Link, useHistory } from "react-router-dom";
 import "./index.less";
-import { OpenedMenu, } from "@/types"
-import { useDispatch, useSelector } from "react-redux";
-import { filterOpenKey } from "@/store/action";
+import { OpenedMenu } from "@/types"
 import { message } from "antd";
 import ContextMenu from "../contextMenu";
-import { getCurrentPath, getOpenedMenu } from "@/store/getters";
+import { useDispatchMenu, useStateCurrentPath, useStateOpenedMenu } from "@/store/hooks";
 // 重新记录数组顺序
 const reorder = (list: OpenedMenu[], startIndex: number, endIndex: number) => {
   const result = Array.from(list);
@@ -27,10 +25,9 @@ export default function MenuDnd() {
   const [point, setPoint] = useState({ x: 0, y: 0 })
 
   // state
-  const dispatch = useDispatch()
-  const openedMenu = useSelector(getOpenedMenu)
-  const currentPath = useSelector(getCurrentPath)
-  const filterOpenMenu = useCallback((key) => dispatch(filterOpenKey(key)), [dispatch])
+  const openedMenu = useStateOpenedMenu()
+  const currentPath = useStateCurrentPath()
+  const { stateFilterOpenMenuKey: filterOpenMenu } = useDispatchMenu()
 
   // 根据 选中的菜单 往里添加拖拽选项
   useEffect(() => {

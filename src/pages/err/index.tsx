@@ -1,10 +1,8 @@
 import { Result, Button } from "antd";
-import { useDispatch, useSelector } from "react-redux";
 import { getDefaultMenu, } from "@/utils";
-import { filterOpenKey } from "@/store/menu/action";
-import { getOpenedMenu } from "@/store/getters";
 import { useHistory } from "react-router-dom";
 import { useCallback } from "react";
+import { useDispatchMenu, useStateOpenedMenu } from "@/store/hooks";
 
 interface ErrProps {
   status: 403 | 404 | 500 | '403' | '404' | '500'
@@ -15,22 +13,20 @@ interface ErrProps {
 
 function useErrorPage(props: ErrProps) {
   const {
-
     status = "404",
     errTitle = "404",
     subTitle = "Sorry, the page you visited does not exist.",
   } = props;
-  const openedMenu = useSelector(getOpenedMenu)
-  const dispatch = useDispatch()
+  const openedMenu = useStateOpenedMenu()
   const history = useHistory()
-  const filterOpenKeyFn = useCallback((key) => dispatch(filterOpenKey(key)), [dispatch])
+  const { stateFilterOpenMenuKey } = useDispatchMenu()
   const back = useCallback(async () => {
     const url =
       history.location.pathname +
       (history.location.hash || history.location.search);
     // 顶部一个或以下被打开
     if (openedMenu.length <= 1) {
-      filterOpenKeyFn([url]);
+      stateFilterOpenMenuKey([url]);
       const defaultMenu = await getDefaultMenu();
       if (defaultMenu.openedMenu.length === 0) return history.replace("/");
       let { parentPath, path } = defaultMenu.openedMenu[0];
@@ -39,10 +35,10 @@ function useErrorPage(props: ErrProps) {
     }
     // 从顶部打开的路径，再去跳转
     const menuList = openedMenu.filter((i) => i.path !== url);
-    filterOpenKeyFn([url]);
+    stateFilterOpenMenuKey([url]);
     const next = menuList[menuList.length - 1];
     history.replace(next.path);
-  }, [history, openedMenu, filterOpenKeyFn])
+  }, [history, openedMenu, stateFilterOpenMenuKey])
   return { status, errTitle, subTitle, back };
 }
 
