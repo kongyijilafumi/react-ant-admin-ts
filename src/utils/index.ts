@@ -19,11 +19,11 @@ async function getDefaultMenu(): Promise<MenuOpenData> {
     selectKey: string[] = [],
     openedMenu: MenuItem[] = [];
   const menuList = await getMenus();
-  menuList.some((list) => {
-    const child = list[MENU_CHILDREN]
+  menuList.some((menu) => {
+    const child = menu[MENU_CHILDREN]
     if (child && child.length) {
-      openKeys = [(list[MENU_KEY] as string)];
-      selectKey = [(child[0][MENU_KEY] as string)];
+      openKeys = [String(menu[MENU_KEY])];
+      selectKey = [String(child[0][MENU_KEY])];
       openedMenu = [child[0]];
       return true;
     }
@@ -57,14 +57,14 @@ function getLocalUser() {
 }
 
 
-function getMenuParentKey(list: MenuList, key: string): string[] {
+function getMenuParentKey(list: MenuList, key: number): string[] {
   const keys = [];
   const info = list.find((item) => item[MENU_KEY] === key);
   let parentKey = info?.[MENU_PARENTKEY];
   if (parentKey) {
     const data = getMenuParentKey(list, parentKey)
     keys.push(...data);
-    keys.push(parentKey);
+    keys.push(String(parentKey));
   }
   return keys;
 }
@@ -116,10 +116,10 @@ export function formatMenu(list: MenuList) {
 function reduceMenuList(list: MenuList, path: string = ''): MenuList {
   const data: MenuList = [];
   list.forEach((i) => {
-    const { children, ...item } = i;
-    item.parentPath = path;
+    const { [MENU_CHILDREN]: children, ...item } = i;
+    item[MENU_PARENTPATH] = path;
     if (children) {
-      const childList = reduceMenuList(children, path + i.path);
+      const childList = reduceMenuList(children, path + i[MENU_PATH]);
       data.push(...childList);
     }
     data.push(item);

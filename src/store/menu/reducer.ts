@@ -14,10 +14,15 @@ export default function reducer(state = initGlobalState, action: MenuAction): Me
   const { type, menuItem, keys, list, path } = action;
   switch (type) {
     case actionTypes.ADDOPENTMENU: {
-      if (menuItem && !state.openedMenu.find((i) => i.path === menuItem.path)) {
-        const openedMenu = [...state.openedMenu];
+      let index = state.openedMenu.findIndex(i => i.path === menuItem.path)
+      const openedMenu = [...state.openedMenu];
+      // 没找到
+      if (menuItem && !~index) {
         openedMenu.push(menuItem);
         return { ...state, openedMenu };
+      } else if (~index && openedMenu[index].path === menuItem.path && openedMenu[index].key !== menuItem.key) {
+        // 找到 且 key 不同就替换
+        return { ...state, openedMenu: [...openedMenu.slice(0, index), menuItem, ...openedMenu.slice(index + 1)] }
       }
       return state;
     }

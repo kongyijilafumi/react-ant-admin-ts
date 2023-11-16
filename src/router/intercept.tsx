@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Spin } from "antd"
 import { getMenuParentKey } from "@/utils";
+import { useDidRecover } from "react-router-cache-route";
 import Error from "@/pages/err";
 import { useLocation } from "react-router-dom";
 import { MenuItem } from "@/types";
@@ -43,8 +44,9 @@ function Intercept({ menuList, components: Components, [MENU_TITLE]: title, [MEN
   // 监听 location 改变
   const onPathChange = useCallback(() => {
     stateSetCurrentPath(currentPath)
+    stateSetSelectMenuKey([String(pageKey)]);
     stateAddOpenedMenu({ key: pageKey, path: currentPath, title: title || "未设置标题信息" });
-  }, [currentPath, pageKey, title, stateSetCurrentPath, stateAddOpenedMenu])
+  }, [currentPath, pageKey, title, stateSetCurrentPath, stateAddOpenedMenu, stateSetSelectMenuKey])
 
   const setCurrentPageInfo = useCallback(() => {
     if (!title) {
@@ -52,8 +54,9 @@ function Intercept({ menuList, components: Components, [MENU_TITLE]: title, [MEN
     }
     document.title = title;
     stateSetSelectMenuKey([String(pageKey)]);
-    let openkey = getMenuParentKey(menuList, pageKey);
+    let openkey = getMenuParentKey(menuList, Number(pageKey));
     stateSetOpenMenuKey(openkey);
+    console.log(title, openkey, pageKey);
     stateAddOpenedMenu({ key: pageKey, path: currentPath, title });
   }, [currentPath, menuList, title, pageKey, stateSetOpenMenuKey, stateSetSelectMenuKey, stateAddOpenedMenu])
 
@@ -70,11 +73,14 @@ function Intercept({ menuList, components: Components, [MENU_TITLE]: title, [MEN
   }, [init, pageInit])
 
   useEffect(() => {
-    if (pageInit) {
+    if (!pageInit) {
       onPathChange()
     }
   }, [onPathChange, pageInit])
-
+  // 缓存激活
+  useDidRecover(() => {
+    onPathChange()
+  }, [onPathChange])
 
   const hasPath = !menuList.find(
     (m) => (m[MENU_PARENTPATH] || "") + m[MENU_PATH] === pagePath

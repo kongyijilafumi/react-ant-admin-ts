@@ -19,15 +19,16 @@ declare namespace globalThis {
   }
   // 与 package.json "MENU_DATA" 保持一致
   const MENU_PATH = "path"
-  const MENU_SHOW = "isShowOnMenu"
-  const MENU_KEEPALIVE = "keepAlive"
+  const MENU_SHOW = "show"
+  const MENU_KEEPALIVE = "keep_alive"
   const MENU_KEY = "key"
   const MENU_ICON = "icon"
   const MENU_TITLE = "title"
   const MENU_CHILDREN = "children"
-  const MENU_PARENTKEY = "parentKey"
+  const MENU_PARENTKEY = "parent_m_id"
   const MENU_ALLPATH = "allPath"
   const MENU_PARENTPATH = "parentPath"
+  const MENU_ORDER = "order"
 }
 declare module '*.avif' {
   const src: string;

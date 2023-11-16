@@ -43,13 +43,13 @@ function pushParentId(checkList: CheckList, list: MenuList, id: MenuItem["key"])
     return
   }
 
-  const parentId: string = info.parentId
+  const parentId = info[MENU_PARENTKEY]
   if (parentId && !checkList.includes(parentId)) {
     checkList.push(parentId)
     pushParentId(checkList, list, parentId)
   }
 }
-function filterParentId(parent: CheckList, list: MenuList, id: MenuItem["key"]) {
+function filterParentId(parent: CheckList, list: MenuList, id: MenuItem['key']) {
   const find = list.find(item => item[MENU_KEY] === id)
   if (!find) {
     return
@@ -133,6 +133,11 @@ export default function TypeModal({ info, isShow, onCancel, onOk, menuList }: Mo
       <Tree
         treeData={menuList}
         checkable
+        fieldNames={{
+          title: MENU_TITLE,
+          key: MENU_KEY,
+          children: MENU_CHILDREN
+        }}
         defaultExpandAll={true}
         checkedKeys={menuId}
         selectable={false}

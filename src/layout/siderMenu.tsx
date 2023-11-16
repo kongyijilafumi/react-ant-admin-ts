@@ -14,19 +14,19 @@ const { SubMenu } = Menu;
 
 
 const renderMenu = (item: MenuItem, path: string) => {
-  if (item[MENU_SHOW] === false) {
+  if (item[MENU_SHOW] === "false") {
     return null;
   }
   if (!item.children) {
-    return <Menu.Item key={item[MENU_KEY]} icon={<MyIcon type={item[MENU_ICON]} />}>
+    return <Menu.Item key={String(item[MENU_KEY])} icon={<MyIcon type={item[MENU_ICON] as string} />}>
       <Link to={path + item[MENU_PATH]}>{item[MENU_TITLE]}</Link>
     </Menu.Item>
   }
   return (
     <SubMenu
-      key={item[MENU_KEY]}
+      key={String(item[MENU_KEY])}
       title={item[MENU_TITLE]}
-      icon={<MyIcon type={item[MENU_ICON]} />}
+      icon={<MyIcon type={item[MENU_ICON] as string} />}
     >
       {item.children.map(i => renderMenu(i, path + item[MENU_PATH]))}
     </SubMenu>
